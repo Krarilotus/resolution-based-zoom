@@ -1,0 +1,7 @@
+name: resolution-based-zoom
+display-name: Resolution Based Zoom
+type: module
+version: 0.1.0
+author: gynt
+meta:
+  version: 1.0.0

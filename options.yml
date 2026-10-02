@@ -1,0 +1,404 @@
+meta:
+  version: 1.0.0
+options:
+- display: GroupBox
+  category: [Resolution Based Zoom]
+  header: '{{hotkey_group}}'
+  text: '{{hotkey_group_descr}}'
+  hasHeader: true
+  children:
+  - url: resolution-based-zoom.hotkey.mode
+    name: resolution-based-zoom-hotkey-mode
+    text: '{{hotkey_mode}}'
+    tooltip: '{{hotkey_mode_tooltip}}'
+    display: RadioGroup
+    contents:
+      type: string
+      value: one_key
+      choices:
+      - name: two_keys
+        text: '{{hotkey_mode_two_keys}}'
+      - name: one_key
+        text: '{{hotkey_mode_one_key}}'
+  - url: resolution-based-zoom.hotkey.zoom_in
+    name: resolution-based-zoom-hotkey-zoom-in
+    text: '{{hotkey_zoom_in}}'
+    tooltip: '{{hotkey_zoom_in_tooltip}}'
+    display: Choice
+    contents:
+      type: string
+      value: letter_e
+      choices:
+      - name: letter_a
+        text: '{{key_letter_a}}'
+      - name: letter_b
+        text: '{{key_letter_b}}'
+      - name: letter_c
+        text: '{{key_letter_c}}'
+      - name: letter_d
+        text: '{{key_letter_d}}'
+      - name: letter_e
+        text: '{{key_letter_e}}'
+      - name: letter_f
+        text: '{{key_letter_f}}'
+      - name: letter_g
+        text: '{{key_letter_g}}'
+      - name: letter_h
+        text: '{{key_letter_h}}'
+      - name: letter_i
+        text: '{{key_letter_i}}'
+      - name: letter_j
+        text: '{{key_letter_j}}'
+      - name: letter_k
+        text: '{{key_letter_k}}'
+      - name: letter_l
+        text: '{{key_letter_l}}'
+      - name: letter_m
+        text: '{{key_letter_m}}'
+      - name: letter_n
+        text: '{{key_letter_n}}'
+      - name: letter_o
+        text: '{{key_letter_o}}'
+      - name: letter_p
+        text: '{{key_letter_p}}'
+      - name: letter_q
+        text: '{{key_letter_q}}'
+      - name: letter_r
+        text: '{{key_letter_r}}'
+      - name: letter_s
+        text: '{{key_letter_s}}'
+      - name: letter_t
+        text: '{{key_letter_t}}'
+      - name: letter_u
+        text: '{{key_letter_u}}'
+      - name: letter_v
+        text: '{{key_letter_v}}'
+      - name: letter_w
+        text: '{{key_letter_w}}'
+      - name: letter_x
+        text: '{{key_letter_x}}'
+      - name: letter_y
+        text: '{{key_letter_y}}'
+      - name: letter_z
+        text: '{{key_letter_z}}'
+      - name: f1
+        text: '{{key_f1}}'
+      - name: f2
+        text: '{{key_f2}}'
+      - name: f3
+        text: '{{key_f3}}'
+      - name: f4
+        text: '{{key_f4}}'
+      - name: f5
+        text: '{{key_f5}}'
+      - name: f6
+        text: '{{key_f6}}'
+      - name: f7
+        text: '{{key_f7}}'
+      - name: f8
+        text: '{{key_f8}}'
+      - name: f9
+        text: '{{key_f9}}'
+      - name: f10
+        text: '{{key_f10}}'
+      - name: numpad_add
+        text: '{{key_numpad_add}}'
+      - name: numpad_subtract
+        text: '{{key_numpad_subtract}}'
+      - name: numpad_multiply
+        text: '{{key_numpad_multiply}}'
+      - name: numpad_divide
+        text: '{{key_numpad_divide}}'
+      - name: numpad_decimal
+        text: '{{key_numpad_decimal}}'
+      - name: numpad_0
+        text: '{{key_numpad_0}}'
+      - name: numpad_1
+        text: '{{key_numpad_1}}'
+      - name: numpad_2
+        text: '{{key_numpad_2}}'
+      - name: numpad_3
+        text: '{{key_numpad_3}}'
+      - name: numpad_4
+        text: '{{key_numpad_4}}'
+      - name: numpad_5
+        text: '{{key_numpad_5}}'
+      - name: numpad_6
+        text: '{{key_numpad_6}}'
+      - name: numpad_7
+        text: '{{key_numpad_7}}'
+      - name: numpad_8
+        text: '{{key_numpad_8}}'
+      - name: numpad_9
+        text: '{{key_numpad_9}}'
+      - name: digit_0
+        text: '{{key_digit_0}}'
+      - name: digit_1
+        text: '{{key_digit_1}}'
+      - name: digit_2
+        text: '{{key_digit_2}}'
+      - name: digit_3
+        text: '{{key_digit_3}}'
+      - name: digit_4
+        text: '{{key_digit_4}}'
+      - name: digit_5
+        text: '{{key_digit_5}}'
+      - name: digit_6
+        text: '{{key_digit_6}}'
+      - name: digit_7
+        text: '{{key_digit_7}}'
+      - name: digit_8
+        text: '{{key_digit_8}}'
+      - name: digit_9
+        text: '{{key_digit_9}}'
+      - name: tab
+        text: '{{key_tab}}'
+      - name: backspace
+        text: '{{key_backspace}}'
+      - name: enter
+        text: '{{key_enter}}'
+      - name: space
+        text: '{{key_space}}'
+      - name: caps_lock
+        text: '{{key_caps_lock}}'
+      - name: escape
+        text: '{{key_escape}}'
+      - name: insert
+        text: '{{key_insert}}'
+      - name: delete_key
+        text: '{{key_delete_key}}'
+      - name: home
+        text: '{{key_home}}'
+      - name: end_key
+        text: '{{key_end_key}}'
+      - name: page_up
+        text: '{{key_page_up}}'
+      - name: page_down
+        text: '{{key_page_down}}'
+      - name: arrow_left
+        text: '{{key_arrow_left}}'
+      - name: arrow_up
+        text: '{{key_arrow_up}}'
+      - name: arrow_right
+        text: '{{key_arrow_right}}'
+      - name: arrow_down
+        text: '{{key_arrow_down}}'
+  - url: resolution-based-zoom.hotkey.zoom_out
+    name: resolution-based-zoom-hotkey-zoom-out
+    text: '{{hotkey_zoom_out}}'
+    tooltip: '{{hotkey_zoom_out_tooltip}}'
+    enabled: resolution-based-zoom.hotkey.mode == "two_keys"
+    display: Choice
+    contents:
+      type: string
+      value: letter_r
+      choices:
+      - name: letter_a
+        text: '{{key_letter_a}}'
+      - name: letter_b
+        text: '{{key_letter_b}}'
+      - name: letter_c
+        text: '{{key_letter_c}}'
+      - name: letter_d
+        text: '{{key_letter_d}}'
+      - name: letter_e
+        text: '{{key_letter_e}}'
+      - name: letter_f
+        text: '{{key_letter_f}}'
+      - name: letter_g
+        text: '{{key_letter_g}}'
+      - name: letter_h
+        text: '{{key_letter_h}}'
+      - name: letter_i
+        text: '{{key_letter_i}}'
+      - name: letter_j
+        text: '{{key_letter_j}}'
+      - name: letter_k
+        text: '{{key_letter_k}}'
+      - name: letter_l
+        text: '{{key_letter_l}}'
+      - name: letter_m
+        text: '{{key_letter_m}}'
+      - name: letter_n
+        text: '{{key_letter_n}}'
+      - name: letter_o
+        text: '{{key_letter_o}}'
+      - name: letter_p
+        text: '{{key_letter_p}}'
+      - name: letter_q
+        text: '{{key_letter_q}}'
+      - name: letter_r
+        text: '{{key_letter_r}}'
+      - name: letter_s
+        text: '{{key_letter_s}}'
+      - name: letter_t
+        text: '{{key_letter_t}}'
+      - name: letter_u
+        text: '{{key_letter_u}}'
+      - name: letter_v
+        text: '{{key_letter_v}}'
+      - name: letter_w
+        text: '{{key_letter_w}}'
+      - name: letter_x
+        text: '{{key_letter_x}}'
+      - name: letter_y
+        text: '{{key_letter_y}}'
+      - name: letter_z
+        text: '{{key_letter_z}}'
+      - name: f1
+        text: '{{key_f1}}'
+      - name: f2
+        text: '{{key_f2}}'
+      - name: f3
+        text: '{{key_f3}}'
+      - name: f4
+        text: '{{key_f4}}'
+      - name: f5
+        text: '{{key_f5}}'
+      - name: f6
+        text: '{{key_f6}}'
+      - name: f7
+        text: '{{key_f7}}'
+      - name: f8
+        text: '{{key_f8}}'
+      - name: f9
+        text: '{{key_f9}}'
+      - name: f10
+        text: '{{key_f10}}'
+      - name: numpad_add
+        text: '{{key_numpad_add}}'
+      - name: numpad_subtract
+        text: '{{key_numpad_subtract}}'
+      - name: numpad_multiply
+        text: '{{key_numpad_multiply}}'
+      - name: numpad_divide
+        text: '{{key_numpad_divide}}'
+      - name: numpad_decimal
+        text: '{{key_numpad_decimal}}'
+      - name: numpad_0
+        text: '{{key_numpad_0}}'
+      - name: numpad_1
+        text: '{{key_numpad_1}}'
+      - name: numpad_2
+        text: '{{key_numpad_2}}'
+      - name: numpad_3
+        text: '{{key_numpad_3}}'
+      - name: numpad_4
+        text: '{{key_numpad_4}}'
+      - name: numpad_5
+        text: '{{key_numpad_5}}'
+      - name: numpad_6
+        text: '{{key_numpad_6}}'
+      - name: numpad_7
+        text: '{{key_numpad_7}}'
+      - name: numpad_8
+        text: '{{key_numpad_8}}'
+      - name: numpad_9
+        text: '{{key_numpad_9}}'
+      - name: digit_0
+        text: '{{key_digit_0}}'
+      - name: digit_1
+        text: '{{key_digit_1}}'
+      - name: digit_2
+        text: '{{key_digit_2}}'
+      - name: digit_3
+        text: '{{key_digit_3}}'
+      - name: digit_4
+        text: '{{key_digit_4}}'
+      - name: digit_5
+        text: '{{key_digit_5}}'
+      - name: digit_6
+        text: '{{key_digit_6}}'
+      - name: digit_7
+        text: '{{key_digit_7}}'
+      - name: digit_8
+        text: '{{key_digit_8}}'
+      - name: digit_9
+        text: '{{key_digit_9}}'
+      - name: tab
+        text: '{{key_tab}}'
+      - name: backspace
+        text: '{{key_backspace}}'
+      - name: enter
+        text: '{{key_enter}}'
+      - name: space
+        text: '{{key_space}}'
+      - name: caps_lock
+        text: '{{key_caps_lock}}'
+      - name: escape
+        text: '{{key_escape}}'
+      - name: insert
+        text: '{{key_insert}}'
+      - name: delete_key
+        text: '{{key_delete_key}}'
+      - name: home
+        text: '{{key_home}}'
+      - name: end_key
+        text: '{{key_end_key}}'
+      - name: page_up
+        text: '{{key_page_up}}'
+      - name: page_down
+        text: '{{key_page_down}}'
+      - name: arrow_left
+        text: '{{key_arrow_left}}'
+      - name: arrow_up
+        text: '{{key_arrow_up}}'
+      - name: arrow_right
+        text: '{{key_arrow_right}}'
+      - name: arrow_down
+        text: '{{key_arrow_down}}'
+  - url: resolution-based-zoom.hotkey.suppress_vanilla
+    name: resolution-based-zoom-hotkey-suppress-vanilla
+    text: '{{hotkey_suppress}}'
+    tooltip: '{{hotkey_suppress_tooltip}}'
+    display: Switch
+    contents:
+      type: boolean
+      value: false
+- display: GroupBox
+  category: [Resolution Based Zoom]
+  header: '{{reset_group}}'
+  text: '{{reset_group_descr}}'
+  hasHeader: true
+  children:
+  - url: resolution-based-zoom.reset.resolution
+    name: resolution-based-zoom-reset-resolution
+    text: '{{reset_resolution}}'
+    tooltip: '{{reset_resolution_tooltip}}'
+    display: Choice
+    contents:
+      type: string
+      value: 'off'
+      choices:
+      - name: 'off'
+        text: '{{reset_off}}'
+      - name: r800x600
+        text: '800 x 600'
+      - name: r1024x600
+        text: '1024 x 600'
+      - name: r1024x768
+        text: '1024 x 768'
+      - name: r1280x720
+        text: '1280 x 720'
+      - name: r1360x768
+        text: '1360 x 768'
+      - name: r1366x768
+        text: '1366 x 768'
+      - name: r1440x900
+        text: '1440 x 900'
+      - name: r1280x1024
+        text: '1280 x 1024'
+      - name: r1600x900
+        text: '1600 x 900'
+      - name: r1680x1050
+        text: '1680 x 1050'
+      - name: r1600x1200
+        text: '1600 x 1200'
+      - name: r1920x1080
+        text: '1920 x 1080'
+      - name: r1920x1200
+        text: '1920 x 1200'
+      - name: r2560x1440
+        text: '2560 x 1440'
+      - name: r2560x1600
+        text: '2560 x 1600'

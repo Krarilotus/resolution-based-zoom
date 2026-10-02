@@ -1,0 +1,12 @@
+meta:
+  version: 1.0.0
+config-sparse:
+  modules:
+    resolution-based-zoom:
+      config:
+        reset:
+          resolution:
+            contents:
+              value: 'off'
+  plugins: {}
+  load-order: []

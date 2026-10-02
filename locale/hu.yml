@@ -1,0 +1,5 @@
+qol: Quality of Life
+reset_group: Nagyítás megjelenítése
+reset_off: Jelenlegi felbontás megtartása
+reset_resolution: Menü felbontása
+reset_resolution_tooltip: A térkép elhagyásakor erre vált. A nagyítás vezérlése a Custom Hotkeysban van.

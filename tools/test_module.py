@@ -2,8 +2,7 @@
 
 The module is pure Lua over a handful of `core.*` calls, so it can be exercised offline:
 this script loads init.lua into a Lua runtime, hands it a `core` table backed by a
-dictionary standing in for game memory, calls `enable`, and then drives the detour
-callbacks the way the game's window procedure would.
+dictionary standing in for game memory, calls `enable`, and then invokes the registered display actions. Input routing is tested by Custom Hotkeys.
 
     pip install lupa
     python tools/test_module.py
@@ -28,7 +27,6 @@ RESOLUTIONS = {1: (800, 600), 2: (1024, 768), 3: (1280, 720), 4: (1280, 1024),
 # Addresses for the fake game. Arbitrary, but distinct.
 STATE_SITE, PENDING, WINDOW, DISPATCH = 0x1000, 0x2000, 0x3000, 0x4000
 ZOOM_SITE, MENU_ZOOM, LIVE_ZOOM = 0x6000, 0x7000, 0x7004
-KEYSTATE_SITE, KEYSTATE_IMPORT = 0x8000, 0x8100
 SCREEN_SITE, INGAME_SITE, SCREENID_SITE, GUARD_SITE = 0x8200, 0x8300, 0x8400, 0x8500
 SCREEN_ID, MENU_GUARD = 0x8600, 0x8604
 CASE_TARGETS, TAIL = 0xC000, 0xD000
@@ -37,7 +35,6 @@ NO_ACTION_CASE = 40
 KEY_CASES = CASE_TARGETS + CASE_COUNT * 4     # the byte table sits right after, as in game
 SUPPORTED = WINDOW + 0x68
 
-VK = {'E': 0x45, 'R': 0x52, 'F': 0x46, 'D': 0x44}
 ON_MAP, IN_MENU = 0x10, 0x31
 GUARD_IDLE = -1
 
@@ -59,7 +56,6 @@ def pattern_site(pattern):
     for prefix, address in (('A1 ? ? ? ? 83 F8 01', STATE_SITE),
                             ('8D 46 F8', DISPATCH),
                             ('A1 ? ? ? ? 3B 05', ZOOM_SITE),
-                            ('6A 28', KEYSTATE_SITE),
                             ('83 FD 17', SCREEN_SITE),
                             ('8B 41 0C', INGAME_SITE),
                             ('83 3D', SCREENID_SITE),
@@ -78,7 +74,6 @@ class Game(object):
         self.words = {
             STATE_SITE + 1: PENDING, STATE_SITE + 0x45: SUPPORTED,
             ZOOM_SITE + 1: MENU_ZOOM, ZOOM_SITE + 7: LIVE_ZOOM,
-            KEYSTATE_SITE + 4: KEYSTATE_IMPORT,
             SCREENID_SITE + 2: SCREEN_ID, GUARD_SITE + 32: MENU_GUARD,
             DISPATCH + 8: TAIL - (DISPATCH + 12),     # rel32 of `ja tail`
             DISPATCH + 15: KEY_CASES, DISPATCH + 22: CASE_TARGETS,
@@ -101,7 +96,6 @@ class Game(object):
         self.missing = set(missing)
         self.key_writes = {}
         self.hooks = {}
-        self.ctrl_held = False
 
     # --- the core.* surface the module uses ---------------------------------------
     def scan(self, pattern):
@@ -120,7 +114,7 @@ class Game(object):
     def expose(self, address, argc, convention):
         if address == 0x9000:
             return self.apply_video_options
-        return lambda vk: (0x8000 if self.ctrl_held else 0)      # GetAsyncKeyState
+        raise AssertionError("unexpected native action binding")
 
     def detour(self, callback, address, size):
         self.hooks['screen' if address == SCREEN_SITE else 'key'] = callback
@@ -144,14 +138,21 @@ class Game(object):
         globals_.log = lambda level, message: None
         globals_.WARNING, globals_.INFO = -1, 0
 
+        self.actions = {}
+        def register(_, action, callback):
+            assert action not in self.actions
+            self.actions[action] = callback
+        globals_.register_external = register
+        api = self.lua.eval('function(self, id, callback) return register_external(self,id,callback) end')
+        globals_.modules = self.lua.table_from({'custom-hotkeys': self.lua.table_from({'registerActionHandler': api})})
         module = self.lua.eval('load')(SOURCE, 'init.lua')()
         module.enable(module, self.lua.table_from(
             {k: self.lua.table_from(v) for k, v in config.items()}))
         return self
 
-    def press(self, key, ctrl=False):
-        self.ctrl_held = ctrl
-        self.hooks['key'](self.lua.table_from({'ESI': VK[key], 'ECX': 0}))
+    def zoom(self, action):
+        assert action in ('in', 'out')
+        self.actions['view.resolution-zoom-' + action]()
         return self
 
     def change_screen(self, screen):
@@ -174,94 +175,63 @@ class Game(object):
         return sorted(address - KEY_CASES + 8 for address in self.key_writes)
 
 
-TWO_KEYS = {'hotkey': {'mode': 'two_keys', 'zoom_in': 'letter_e', 'zoom_out': 'letter_r'}}
-ONE_KEY = {'hotkey': {'mode': 'one_key', 'zoom_in': 'letter_e', 'zoom_out': 'letter_r'}}
 
 
 def main():
     print('zoom ladder: only window-shaped sizes, smallest to largest, no wrap')
-    game = Game().start(TWO_KEYS)
-    check('E', game.press('E').resolution, '1600x900')
-    check('E', game.press('E').resolution, '1366x768')
-    check('E', game.press('E').resolution, '1280x720')
-    check('E at the smallest step stays put', game.press('E').resolution, '1280x720')
-    check('R', game.press('R').resolution, '1366x768')
-    check('R', game.press('R').resolution, '1600x900')
-    check('R', game.press('R').resolution, '1920x1080')
-    check('R at the largest step stays put', game.press('R').resolution, '1920x1080')
+    game = Game().start({})
+    check('zoom in', game.zoom('in').resolution, '1600x900')
+    check('zoom in', game.zoom('in').resolution, '1366x768')
+    check('zoom in', game.zoom('in').resolution, '1280x720')
+    check('zoom in at the smallest step stays put', game.zoom('in').resolution, '1280x720')
+    check('zoom out', game.zoom('out').resolution, '1366x768')
+    check('zoom out', game.zoom('out').resolution, '1600x900')
+    check('zoom out', game.zoom('out').resolution, '1920x1080')
+    check('zoom out at the largest step stays put', game.zoom('out').resolution, '1920x1080')
 
     print('\n1360x768 is dropped: too close to 1366x768 to be a real step')
     check('ladder never lands on it',
-          '1360x768' not in [Game().start(TWO_KEYS).press('E').resolution], True)
+          '1360x768' not in [Game().start({}).zoom('in').resolution], True)
 
     print('\na 4:3 window zooms through 4:3 sizes only')
-    game = Game(window=(1024, 768), resolution=2).start(TWO_KEYS)
-    check('E', game.press('E').resolution, '800x600')
-    check('R', game.press('R').resolution, '1024x768')
-    check('R', game.press('R').resolution, '1600x1200')
+    game = Game(window=(1024, 768), resolution=2).start({})
+    check('zoom in', game.zoom('in').resolution, '800x600')
+    check('zoom out', game.zoom('out').resolution, '1024x768')
+    check('zoom out', game.zoom('out').resolution, '1600x1200')
 
     print('\nstarting off-ladder (5:4 on a 16:9 window) snaps onto it')
-    game = Game(resolution=4).start(TWO_KEYS)
-    check('first press snaps to the nearest step', game.press('E').resolution, '1600x900')
+    game = Game(resolution=4).start({})
+    check('first action snaps to the nearest step', game.zoom('in').resolution, '1600x900')
 
-    print('\none-key mode: Ctrl picks the direction')
-    game = Game().start(ONE_KEY)
-    check('E', game.press('E').resolution, '1600x900')
-    check('Ctrl+E', game.press('E', ctrl=True).resolution, '1920x1080')
-    check('R is not bound here', game.press('R').resolution, '1920x1080')
+    print('\nthe two provider actions select opposite directions')
+    game = Game().start({})
+    check('zoom in', game.zoom('in').resolution, '1600x900')
+    check('zoom out', game.zoom('out').resolution, '1920x1080')
+    check('zoom out stops at the largest supported step', game.zoom('out').resolution, '1920x1080')
 
     print('\nthe vanilla Z zoom survives a resolution change')
     for live in (0, 1):
         for menu in (0, 1):
-            game = Game(live_zoom=live, menu_zoom=menu).start(TWO_KEYS)
-            game.press('E').press('E').press('R')
+            game = Game(live_zoom=live, menu_zoom=menu).start({})
+            game.zoom('in').zoom('in').zoom('out')
             check('live=%d menu=%d' % (live, menu), game.vanilla_zoom, live)
 
-    print('\nthe zoom keys only work on the actual game map')
-    for screen, guard, what in [(0x0C, GUARD_IDLE, 'map, editor landscaping view'),
-                                (0x0E, GUARD_IDLE, 'map, build menu view'),
-                                (0x10, GUARD_IDLE, 'map, building/status view')]:
-        game = Game(screen=screen, guard=guard).start(TWO_KEYS)
-        check(what, game.press('E').resolution, '1600x900')
-    for screen, guard, what in [(0x10, 0x1B, 'on the map but typing'),
-                                (IN_MENU, GUARD_IDLE, 'main menu / lobby'),
-                                (0x17, GUARD_IDLE, 'save / load screen')]:
-        game = Game(screen=screen, guard=guard).start(TWO_KEYS)
-        check(what + ' -> ignored', game.press('E').resolution, '1920x1080')
+    # Focus, modal/text eligibility, keyboard/wheel capture and suppression are
+    # tested in Custom Hotkeys. This module installs no input hook.
 
     print('\nleaving the map restores the configured size')
-    config = dict(TWO_KEYS, reset={'resolution': 'r1920x1080'})
-    game = Game().start(config).press('E').press('E')
+    config = dict({}, reset={'resolution': 'r1920x1080'})
+    game = Game().start(config).zoom('in').zoom('in')
     check('zoomed in', game.resolution, '1366x768')
     check('still on the map', game.change_screen(0x0E).resolution, '1366x768')
     check('left to a menu', game.change_screen(IN_MENU).resolution, '1920x1080')
 
-    game = Game().start(dict(TWO_KEYS, reset={'resolution': 'r2560x1440'}))
-    game.press('E').change_screen(IN_MENU)
+    game = Game().start(dict({}, reset={'resolution': 'r2560x1440'}))
+    game.zoom('in').change_screen(IN_MENU)
     check('a size the display cannot do is skipped', game.resolution, '1600x900')
 
-    print('\nsuppression touches only the keys the module binds')
-    check('off by default', Game().start(TWO_KEYS).suppressed_keys, [])
-    on = {'suppress_vanilla': True}
-    check('two keys -> both',
-          Game().start({'hotkey': dict(TWO_KEYS['hotkey'], **on)}).suppressed_keys,
-          [VK['E'], VK['R']])
-    check('one key -> only the zoom key',
-          Game().start({'hotkey': dict(ONE_KEY['hotkey'], **on)}).suppressed_keys,
-          [VK['E']])
-    check('the no-op case is found even if no key uses it',
-          Game().start({'hotkey': dict(TWO_KEYS['hotkey'], **on)}).key_writes
-          and sorted(set(Game().start(
-              {'hotkey': dict(TWO_KEYS['hotkey'], **on)}).key_writes.values())),
-          [NO_ACTION_CASE])
-
-    print('\na pattern another module overwrote disables one feature, never the game')
-    for missing, what in [((GUARD_SITE,), 'input guard'),
-                          ((SCREENID_SITE,), 'screen id'),
-                          ((SCREEN_SITE,), 'screen change hook'),
-                          ((KEYSTATE_SITE,), 'GetAsyncKeyState import')]:
-        game = Game(missing=missing).start(dict(ONE_KEY, reset={'resolution': 'r1920x1080'}))
-        check('%s missing -> still zooms' % what, game.press('E').resolution, '1600x900')
+    check('no keyboard dispatcher hook', 'key' in Game().start({}).hooks, False)
+    check('no keyboard table writes', Game().start({}).suppressed_keys, [])
 
     print()
     if failures:

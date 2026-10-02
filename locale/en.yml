@@ -4,3 +4,5 @@ reset_off: Keep the current resolution
 reset_resolution: Menu resolution
 reset_resolution_tooltip: Return to this resolution when leaving the map. Zoom controls are in Custom
   Hotkeys.
+tags.interface: Interface
+tags.tools: Tools

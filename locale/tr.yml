@@ -4,3 +4,5 @@ reset_off: Mevcut çözünürlüğü koru
 reset_resolution: Menü çözünürlüğü
 reset_resolution_tooltip: Haritadan çıkınca bu çözünürlüğe dön. Yakınlaştırma kontrolleri Custom Hotkeys
   içindedir.
+tags.interface: Arayüz
+tags.tools: Araçlar

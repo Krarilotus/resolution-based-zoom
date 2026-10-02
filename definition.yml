@@ -2,7 +2,7 @@ name: resolution-based-zoom
 display-name: Resolution Based Zoom
 type: module
 version: 0.1.1
-author: gynt
+author: gynt, Monsterfish
 meta:
   version: 1.0.0
 game:
@@ -12,3 +12,6 @@ dependencies:
   framework: '>=3.0.7'
   frontend: '>=1.0.2'
   custom-hotkeys: '>=0.2.3 <0.3.0'
+tags:
+- interface
+- tools

@@ -4,3 +4,5 @@ reset_off: Garder la résolution actuelle
 reset_resolution: Résolution des menus
 reset_resolution_tooltip: Revenir à cette résolution en quittant la carte. Commandes de zoom dans Custom
   Hotkeys.
+tags.interface: Interface
+tags.tools: Outils

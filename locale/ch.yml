@@ -3,3 +3,5 @@ reset_group: 缩放显示设置
 reset_off: 保留当前分辨率
 reset_resolution: 菜单分辨率
 reset_resolution_tooltip: 离开地图时恢复此分辨率。缩放操作在 Custom Hotkeys 中设置。
+tags.interface: 界面
+tags.tools: 工具

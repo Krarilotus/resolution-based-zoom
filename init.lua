@@ -295,8 +295,12 @@ return {
 
     local zoomSyncSite = core.AOBScan(ZOOM_SYNC_AOB)
 
+    local resetResolutionID = RESET_RESOLUTION_IDS[(config.reset or {}).resolution]
     local inGameScreens = {}
-    local inGameScreenSite = scanOptional(IN_GAME_SCREEN_AOB, "the on-the-map screen ids")
+    local inGameScreenSite = nil
+    if resetResolutionID ~= nil then
+      inGameScreenSite = scanOptional(IN_GAME_SCREEN_AOB, "the on-the-map screen ids")
+    end
     if inGameScreenSite ~= nil then
       for _, offset in ipairs(OFFSETS_IN_GAME_SCREEN_IDS) do
         inGameScreens[core.readByte(inGameScreenSite + offset)] = true
@@ -316,7 +320,6 @@ return {
     hotkeys:registerActionHandler('view.resolution-zoom-in', function() zoom(state, applyResolution, ZOOM_IN) end)
     hotkeys:registerActionHandler('view.resolution-zoom-out', function() zoom(state, applyResolution, ZOOM_OUT) end)
 
-    local resetResolutionID = RESET_RESOLUTION_IDS[(config.reset or {}).resolution]
     local screenChangeSite = nil
     if resetResolutionID ~= nil and next(inGameScreens) ~= nil then
       screenChangeSite = scanOptional(SCREEN_CHANGE_AOB, "the screen change function")

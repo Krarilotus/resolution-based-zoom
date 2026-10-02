@@ -8,7 +8,8 @@ binding editor. Existing Zoom key settings are superseded by Hotkeys profiles;
 they are not copied over native stance keys. Existing Hotkeys choices take
 precedence during schema migration. No game save/map extension is introduced.
 
-The inspected Custom Hotkeys parent is `844d54d`; its matching provider/wheel PR
+The inspected Custom Hotkeys parent is `844d54d`; its matching
+[provider/wheel PR #14](https://github.com/Krarilotus/extension-custom-hotkeys/pull/14)
 is a prerequisite. `code/messages.lua`, `code/router.lua`, `code/profiles.lua`
 and `code/native/chain.lua` retain their native context and Windows-chain owners.
 The callback is registered during module enable, before Hotkeys starts in

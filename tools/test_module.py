@@ -120,7 +120,7 @@ class Game(object):
         self.hooks['screen' if address == SCREEN_SITE else 'key'] = callback
 
     # --- driving it ----------------------------------------------------------------
-    def start(self, config):
+    def start(self, config, grid_overlay=False):
         self.lua = lupa.LuaRuntime(unpack_returned_tuples=True)
         globals_ = self.lua.globals()
         globals_.core = self.lua.table_from({
@@ -145,6 +145,8 @@ class Game(object):
         globals_.register_external = register
         api = self.lua.eval('function(self, id, callback) return register_external(self,id,callback) end')
         globals_.modules = self.lua.table_from({'custom-hotkeys': self.lua.table_from({'registerActionHandler': api})})
+        if grid_overlay:
+            globals_.modules['resource-grid-overlay'] = self.lua.table_from({})
         module = self.lua.eval('load')(SOURCE, 'init.lua')()
         module.enable(module, self.lua.table_from(
             {k: self.lua.table_from(v) for k, v in config.items()}))
@@ -234,6 +236,12 @@ def main():
     check('no keyboard table writes', Game().start({}).suppressed_keys, [])
 
     print()
+    print('\nResource Grid Overlay retains the shared screen-change hook')
+    game = Game().start({'reset': {'resolution': 'r1920x1080'}}, grid_overlay=True)
+    check('zoom still works', game.zoom('in').resolution, '1600x900')
+    check('shared hook remains available', 'screen' in game.hooks, False)
+    check('leaving the map keeps the current resolution', game.change_screen(IN_MENU).resolution, '1600x900')
+
     if failures:
         print('FAILED (%d):' % len(failures))
         for failure in failures:

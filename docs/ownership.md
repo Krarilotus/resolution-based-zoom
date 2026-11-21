@@ -24,10 +24,10 @@ action remains the smallest available boundary, resolved using framework
 Its signature now includes its switch context. No numeric executable address
 is used as a runtime binding.
 
-The existing optional menu-resolution reset is preserved and defaults OFF. Its
-screen-change hook can conflict with Grid Overlay; this PR does not claim that
-shared observer ownership is solved. Both projects need a common screen-lifecycle
-owner rather than silently letting the first hook win.
+The optional menu-resolution reset defaults OFF. With Grid Overlay active,
+Zoom leaves the shared screen-transition hook to the overlay and logs why
+automatic reset is unavailable. Zoom's manual controls remain active.
+Supporting both features together requires a common screen-lifecycle owner.
 
 Offline tests check resolution order, supported sizes, aspect-ratio filtering,
 end stops, native Z zoom preservation and reset behavior. Hotkeys tests cover

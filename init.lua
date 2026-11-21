@@ -222,10 +222,7 @@ local function locateOnLadder(ladder, appliedResolutionID)
   return closestIndex, false
 end
 
----Find the case index that means "do nothing": the one whose jump-table entry is the
----same tail the dispatcher jumps to for keys outside its range. Derived rather than
----hardcoded, because ucp2-legacy's `o_keys` (WASD) rebuilds these tables.
----@param dispatchSite number base of the key dispatcher
+---Apply a supported resolution while preserving the live native Z zoom.
 local function switchResolution(state, applyResolution, targetResolutionID)
   if targetResolutionID == core.readInteger(state.appliedResolution) then
     return
@@ -296,6 +293,12 @@ return {
     local zoomSyncSite = core.AOBScan(ZOOM_SYNC_AOB)
 
     local resetResolutionID = RESET_RESOLUTION_IDS[(config.reset or {}).resolution]
+    if resetResolutionID ~= nil and modules["resource-grid-overlay"] then
+      -- Grid Overlay needs the same transition site for its map lifecycle.
+      -- Optional automatic reset must not take the site before it can bind.
+      log(WARNING, "resolution-based-zoom: automatic menu reset is unavailable with Resource Grid Overlay")
+      resetResolutionID = nil
+    end
     local inGameScreens = {}
     local inGameScreenSite = nil
     if resetResolutionID ~= nil then

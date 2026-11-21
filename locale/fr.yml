@@ -2,7 +2,6 @@ qol: Quality of Life
 reset_group: Affichage du zoom
 reset_off: Garder la résolution actuelle
 reset_resolution: Résolution des menus
-reset_resolution_tooltip: Revenir à cette résolution en quittant la carte. Commandes de zoom dans Custom
-  Hotkeys.
+reset_resolution_tooltip: "Revenir à cette résolution en quittant la carte. Commandes de zoom dans Custom Hotkeys. La réinitialisation automatique est indisponible tant que Resource Grid Overlay est actif."
 tags.interface: Interface
 tags.tools: Outils

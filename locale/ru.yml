@@ -2,7 +2,6 @@ qol: Quality of Life
 reset_group: Настройки отображения масштаба
 reset_off: Сохранять текущее разрешение
 reset_resolution: Разрешение меню
-reset_resolution_tooltip: Возвращаться к этому разрешению при выходе с карты. Управление масштабом — в
-  Custom Hotkeys.
+reset_resolution_tooltip: "Возвращаться к этому разрешению при выходе с карты. Управление масштабом — в Custom Hotkeys. Автоматический сброс недоступен, пока включён Resource Grid Overlay."
 tags.interface: Интерфейс
 tags.tools: Инструменты

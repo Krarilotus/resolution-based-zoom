@@ -5,12 +5,12 @@ options:
   category:
   - '{{qol}}'
   header: '{{reset_group}}'
+  text: '{{reset_resolution_tooltip}}'
   hasHeader: true
   children:
   - url: resolution-based-zoom.reset.resolution
     name: resolution-based-zoom-reset-resolution
     text: '{{reset_resolution}}'
-    tooltip: '{{reset_resolution_tooltip}}'
     display: Choice
     contents:
       type: string

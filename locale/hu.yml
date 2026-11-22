@@ -2,6 +2,6 @@ qol: Kényelmi funkciók
 reset_group: Nagyítás megjelenítése
 reset_off: Jelenlegi felbontás megtartása
 reset_resolution: Menü felbontása
-reset_resolution_tooltip: "A térkép elhagyásakor erre vált. A nagyítás vezérlése a Custom Hotkeys modulban állítható. Az automatikus visszaállítás a Resource Grid Overlay használata közben nem érhető el."
+reset_resolution_tooltip: "A térkép elhagyásakor erre vált."
 tags.interface: Kezelőfelület
 tags.tools: Eszközök

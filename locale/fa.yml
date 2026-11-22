@@ -2,6 +2,6 @@ qol: بهبود تجربه بازی
 reset_group: تنظیمات نمایش بزرگ‌نمایی
 reset_off: حفظ وضوح فعلی
 reset_resolution: وضوح منو
-reset_resolution_tooltip: "هنگام خروج از نقشه به این وضوح برگردید. کنترل بزرگ‌نمایی در Custom Hotkeys است. وقتی افزونهٔ Resource Grid Overlay فعال است، بازنشانی خودکار در دسترس نیست."
+reset_resolution_tooltip: "هنگام خروج از نقشه به این وضوح برگردید."
 tags.interface: رابط کاربری
 tags.tools: ابزارها

@@ -1,4 +1,3 @@
--- Machine translations for de, fr, ru, hu, tr, ch, es and fa need human review.
 return {
   category={en="Resolution Based Zoom",de="Auflösungszoom",fr="Zoom par résolution",
     ru="Масштаб по разрешению",hu="Felbontásalapú nagyítás",tr="Çözünürlükle yakınlaştırma",

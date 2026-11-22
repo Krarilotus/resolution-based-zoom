@@ -2,6 +2,6 @@ qol: Yaşam kalitesi
 reset_group: Yakınlaştırma görüntü ayarları
 reset_off: Mevcut çözünürlüğü koru
 reset_resolution: Menü çözünürlüğü
-reset_resolution_tooltip: "Haritadan çıkınca bu çözünürlüğe dönün. Yakınlaştırma kontrolleri Custom Hotkeys içindedir. Resource Grid Overlay etkinken otomatik sıfırlama kullanılamaz."
+reset_resolution_tooltip: "Haritadan çıkınca bu çözünürlüğe dönün."
 tags.interface: Arayüz
 tags.tools: Araçlar

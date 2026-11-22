@@ -106,11 +106,9 @@ local OFFSET_GET_ASYNC_KEY_STATE_IMPORT = 4
 --   test ecx,0x40000000 / jne tail / mov ecx,screenObject / call isInGameScreen /
 --   test eax,eax / je tail / cmp dword [menuGuard],-1 / jne tail
 -- `menuGuard` is -1 exactly when the game is not capturing input for something else.
--- Deliberately stops at the menuGuard operand. An earlier version carried on into the
--- handler body to make the match unique, and ucp2-legacy's `o_gamespeed` rewrites
--- exactly those bytes (its own scan starts at the `cmp eax,0x5A` this used to end on),
--- so the scan failed whenever that option was on. This prefix matches five handler
--- prologues and every one of them yields the same two addresses.
+-- Stops at the menuGuard operand: ucp2-legacy's `o_gamespeed` rewrites the handler body
+-- after it. This prefix matches five handler prologues and every one of them yields the
+-- same two addresses.
 local IN_GAME_GUARD_AOB = "F7 C1 00 00 00 40 0F 85 ? ? ? ? B9 ? ? ? ? E8 ? ? ? ? 85 C0 "
     .. "0F 84 ? ? ? ? 83 3D ? ? ? ? FF"
 local OFFSET_MENU_GUARD = 32

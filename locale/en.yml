@@ -2,6 +2,6 @@ qol: Quality of Life
 reset_group: Zoom display settings
 reset_off: Keep the current resolution
 reset_resolution: Menu resolution
-reset_resolution_tooltip: "Return to this resolution when leaving the map. Zoom controls are in Custom Hotkeys. Automatic reset is unavailable while Resource Grid Overlay is active."
+reset_resolution_tooltip: "Return to this resolution when leaving the map."
 tags.interface: Interface
 tags.tools: Tools

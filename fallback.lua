@@ -235,6 +235,17 @@ local function isOnGameMap(state)
   return true
 end
 
+local function legacyKeysActive()
+  if not modules['ucp2-legacy'] then return false end
+  for _,extension in ipairs(allActiveExtensions or {}) do
+    if extension.name=='ucp2-legacy' then
+      local effective=configFinal and configFinal[extension.name..'-'..extension.version]
+      return not effective or not effective.o_keys or effective.o_keys.enabled~=false
+    end
+  end
+  return true
+end
+
 return function(config, inGameScreens, scanOptional, zoomIn, zoomOut)
   local screenIDSite = scanOptional(SCREEN_ID_AOB, "the current screen id")
   local guardSite = scanOptional(IN_GAME_GUARD_AOB, "the in-game input guard")
@@ -284,7 +295,7 @@ return function(config, inGameScreens, scanOptional, zoomIn, zoomOut)
   -- Optional: repoint those keys at the do-nothing case so they only zoom. Left alone
   -- by default, in which case a key keeps whatever the game does with it (E, for one,
   -- also sets selected troops to aggressive) and the zoom happens on top.
-  if hotkeyConfig.suppress_vanilla == true then
+  if hotkeyConfig.suppress_vanilla == true and not legacyKeysActive() then
     local doNothingCase = findDoNothingCase(dispatchSite)
     if doNothingCase == nil then
       log(WARNING, "resolution-based-zoom: could not find the do-nothing key case; "

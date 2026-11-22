@@ -11,7 +11,8 @@ game's ordinary confirmation sound.
 
 Without Custom Hotkeys, the original E / Ctrl+E controls apply. Older
 `hotkey.mode`, `hotkey.zoom_in`, `hotkey.zoom_out`, and
-`hotkey.suppress_vanilla` configuration values still apply in standalone mode.
+`hotkey.suppress_vanilla` configuration values still apply in standalone mode. With Legacy WASD active,
+its native key table takes precedence over Zoom suppression.
 The earlier Custom Hotkeys wheel preview also works when its
 `registerActionHandler` API is available.
 

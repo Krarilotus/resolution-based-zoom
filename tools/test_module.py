@@ -120,7 +120,7 @@ class Game(object):
         self.hooks['screen' if address == SCREEN_SITE else 'key'] = callback
 
     # --- driving it ----------------------------------------------------------------
-    def start(self, config, grid_overlay=False, provider='generic'):
+    def start(self, config, grid_overlay=False, provider='generic', legacy_keys=False):
         self.lua = lupa.LuaRuntime(unpack_returned_tuples=True)
         globals_ = self.lua.globals()
         globals_.core = self.lua.table_from({
@@ -158,6 +158,8 @@ class Game(object):
             api = self.lua.eval('function(self, id, callback) register_legacy(id,callback); return true end')
             globals_.modules['custom-hotkeys'] = self.lua.table_from({'registerActionHandler': api})
         self.provider = provider
+        if legacy_keys:
+            globals_.modules['ucp2-legacy'] = self.lua.table_from({})
         if grid_overlay:
             globals_.modules['resource-grid-overlay'] = self.lua.table_from({})
         module = self.lua.eval('load')(SOURCE, 'init.lua')()
@@ -265,6 +267,12 @@ def main():
     check('configured zoom in on F', game.key(0x46).resolution, '1600x900')
     check('repeated F ignored', game.key(0x46, repeated=True).resolution, '1600x900')
     check('configured zoom out on T', game.key(0x54).resolution, '1920x1080')
+    suppression = {'hotkey': {'mode': 'two_keys', 'zoom_in': 'letter_s', 'suppress_vanilla': True}}
+    check('explicit suppression without Legacy', Game().start(suppression, provider=None).suppressed_keys,
+          [0x52, 0x53])
+    legacy = Game().start(suppression, provider=None, legacy_keys=True)
+    check('Legacy suppressions leave table alone', legacy.suppressed_keys, [])
+    check('Zoom still works alongside Legacy', legacy.key(0x53).resolution, '1600x900')
     check('no dispatch while in menu', game.change_screen(IN_MENU).key(0x46).resolution, '1920x1080')
     game = Game(missing=(GUARD_SITE,)).start(fallback_config, provider=None)
     check('missing guard leaves native keys alone', 'key' in game.hooks, False)

@@ -1,19 +1,12 @@
 # Input and display ownership
 
-Custom Hotkeys 0.2.3 owns the zoom bindings, Ctrl+wheel routing, conflict checks,
-profile storage and editing. This module registers two callbacks through its
-public `registerActionHandler` API. It no longer scans the keyboard dispatcher,
-reads Ctrl through a private Win32 thunk, modifies key tables or duplicates a
-binding editor. Existing Zoom key settings are superseded by Hotkeys profiles;
-they are not copied over native stance keys. Existing Hotkeys choices take
-precedence during schema migration. No game save/map extension is introduced.
-
-The inspected Custom Hotkeys parent is `844d54d`; its matching
-[provider/wheel PR #14](https://github.com/Krarilotus/extension-custom-hotkeys/pull/14)
-is a prerequisite. `code/messages.lua`, `code/router.lua`, `code/profiles.lua`
-and `code/native/chain.lua` retain their native context and Windows-chain owners.
-The callback is registered during module enable, before Hotkeys starts in
-`afterInit`. Missing, duplicate or late registration fails explicitly.
+When Custom Hotkeys exposes `registerAction`, it owns zoom input, profiles and
+the binding editor. Zoom registers two local world actions during module
+enable and suggests Ctrl+wheel. The earlier `registerActionHandler` provider
+remains supported. Without either API, Zoom uses the original keyboard route
+from `619e426` with its saved options. It leaves Legacy's key table alone while
+Legacy WASD is active. The generic registration path uses the existing Hotkeys
+catalog, context, message chain and profile store.
 
 For display actions, inspected `ui` 1.0.1 (`ui/game.lua`, `init.lua`, header and
 manager) exposes menu/render primitives, not a resolution-step/apply API.

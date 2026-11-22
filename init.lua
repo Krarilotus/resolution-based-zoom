@@ -280,7 +280,6 @@ return {
     config = config or {}
     local hotkeys=modules['custom-hotkeys']
     local shared=hotkeys and type(hotkeys.registerAction)=='function'
-    local oldShared=hotkeys and type(hotkeys.registerActionHandler)=='function'
     local videoOptionsHandler = core.exposeCode(
       core.AOBScan(VIDEO_OPTIONS_HANDLER_AOB), 1, 0)
     local function applyResolution()
@@ -303,7 +302,7 @@ return {
     end
     local inGameScreens = {}
     local inGameScreenSite = nil
-    if resetResolutionID ~= nil or not (shared or oldShared) then
+    if resetResolutionID ~= nil or not shared then
       inGameScreenSite = scanOptional(IN_GAME_SCREEN_AOB, "the on-the-map screen ids")
     end
     if inGameScreenSite ~= nil then
@@ -328,15 +327,12 @@ return {
       local labels=require('action_labels')
       hotkeys:registerAction{
         id='ext.resolution-based-zoom.in', label=labels['in'], category=labels.category,
-        context={kind='world'}, default={wheel='up',mods=1}, callback=zoomIn, sound='click',
+        context={kind='world'}, default={wheel='up',mods=1}, callback=zoomIn,
       }
       hotkeys:registerAction{
         id='ext.resolution-based-zoom.out', label=labels.out, category=labels.category,
-        context={kind='world'}, default={wheel='down',mods=1}, callback=zoomOut, sound='click',
+        context={kind='world'}, default={wheel='down',mods=1}, callback=zoomOut,
       }
-    elseif oldShared then
-      hotkeys:registerActionHandler('view.resolution-zoom-in',zoomIn)
-      hotkeys:registerActionHandler('view.resolution-zoom-out',zoomOut)
     else
       require('fallback')(config,inGameScreens,scanOptional,zoomIn,zoomOut)
     end
@@ -356,7 +352,7 @@ return {
       end, screenChangeSite, SIZE_SCREEN_CHANGE_HOOK)
     end
 
-    if shared or oldShared then log(INFO, 'Resolution Based Zoom actions registered with Custom Hotkeys') end
+    if shared then log(INFO, 'Resolution Based Zoom actions registered with Custom Hotkeys') end
   end,
 
   disable = function(self, config) end,

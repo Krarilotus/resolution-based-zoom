@@ -151,12 +151,8 @@ class Game(object):
         if provider == 'generic':
             api = self.lua.eval('function(self, spec) register_external(spec); return true end')
             globals_.modules['custom-hotkeys'] = self.lua.table_from({'registerAction': api})
-        elif provider == 'legacy':
-            def legacy_register(identifier, callback):
-                self.actions[identifier] = callback
-            globals_.register_legacy = legacy_register
-            api = self.lua.eval('function(self, id, callback) register_legacy(id,callback); return true end')
-            globals_.modules['custom-hotkeys'] = self.lua.table_from({'registerActionHandler': api})
+        elif provider == 'without-api':
+            globals_.modules['custom-hotkeys'] = self.lua.table_from({})
         self.provider = provider
         if legacy_keys:
             globals_.modules['ucp2-legacy'] = self.lua.table_from({})
@@ -169,8 +165,7 @@ class Game(object):
 
     def zoom(self, action):
         assert action in ('in', 'out')
-        prefix = 'ext.resolution-based-zoom.' if self.provider == 'generic' else 'view.resolution-zoom-'
-        self.actions[prefix + action]()
+        self.actions['ext.resolution-based-zoom.' + action]()
         return self
 
     def key(self, virtual_key, repeated=False):
@@ -256,17 +251,18 @@ def main():
     check('no keyboard table writes', Game().start({}).suppressed_keys, [])
     action = Game().start({}).action_specs['ext.resolution-based-zoom.in']
     check('generic default wheel', (action.default.wheel, action.default.mods), ('up', 1))
-    check('game click sound used on success', action.sound, 'click')
+    check('only fields Custom Hotkeys accepts', sorted(k for k, _ in action.items()),
+          ['callback', 'category', 'context', 'default', 'id', 'label'])
     check('all nine action languages', set(action.label.keys()),
           {'en', 'de', 'fr', 'ru', 'hu', 'tr', 'ch', 'es', 'fa'})
-    check('older shared provider still supported',
-          Game().start({}, provider='legacy').zoom('in').resolution, '1600x900')
     print('\nWithout Custom Hotkeys, the original configured native key path works')
     fallback_config = {'hotkey': {'mode': 'two_keys', 'zoom_in': 'letter_f', 'zoom_out': 'letter_t'}}
     game = Game().start(fallback_config, provider=None)
     check('configured zoom in on F', game.key(0x46).resolution, '1600x900')
     check('repeated F ignored', game.key(0x46, repeated=True).resolution, '1600x900')
     check('configured zoom out on T', game.key(0x54).resolution, '1920x1080')
+    check('Custom Hotkeys without the action API uses the original keys',
+          Game().start(fallback_config, provider='without-api').key(0x46).resolution, '1600x900')
     suppression = {'hotkey': {'mode': 'two_keys', 'zoom_in': 'letter_s', 'suppress_vanilla': True}}
     check('explicit suppression without Legacy', Game().start(suppression, provider=None).suppressed_keys,
           [0x52, 0x53])

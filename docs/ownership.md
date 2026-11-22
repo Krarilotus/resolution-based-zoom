@@ -2,8 +2,7 @@
 
 When Custom Hotkeys exposes `registerAction`, it owns zoom input, profiles and
 the binding editor. Zoom registers two local world actions during module
-enable and suggests Ctrl+wheel. The earlier `registerActionHandler` provider
-remains supported. Without either API, Zoom uses the original keyboard route
+enable and suggests Ctrl+wheel. Without that API, Zoom uses the original keyboard route
 from `619e426` with its saved options. It leaves Legacy's key table alone while
 Legacy WASD is active. The generic registration path uses the existing Hotkeys
 catalog, context, message chain and profile store.

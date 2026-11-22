@@ -1,3 +1,3 @@
 # Resolution Based Zoom
 
-Çözünürlüğü değiştirerek yakınlaştırma adımları ekler. Ctrl+fare tekerleğini kullanın veya kontrolleri Custom Hotkeys içinde değiştirin.
+Ekran çözünürlüğünü değiştirerek yeni yakınlaştırma adımları ekler. Custom Hotkeys ile Ctrl+fare tekerleğini kullanın veya iki kısayolu da değiştirin. Modül yoksa E ile yakınlaştırın, Ctrl+E ile uzaklaştırın.

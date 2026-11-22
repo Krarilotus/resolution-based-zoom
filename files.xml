@@ -3,6 +3,8 @@
   <file src="config.yml" />
   <file src="definition.yml" />
   <file src="init.lua" />
+  <file src="action_labels.lua" />
+  <file src="fallback.lua" />
   <file src="locale" />
   <file src="options.yml" />
   <file src="CREDITS.md" />

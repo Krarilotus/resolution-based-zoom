@@ -1,21 +1,22 @@
 # Resolution Based Zoom
 
-Adds zoom steps by switching between supported screen resolutions. The native Z
-zoom stays available. Each step changes display mode, so a brief flicker is possible.
+Adds zoom steps by switching between supported display resolutions. The native Z
+zoom stays available. Each step changes display mode and can briefly flicker.
 
-Enable Custom Hotkeys 0.2.3 and this module. Ctrl+wheel up zooms in; Ctrl+wheel down
-zooms out. Ordinary scrolling keeps its normal action. Change or clear either
-binding in **Options > Custom Hotkeys**. Zoom input is inactive in menus, text entry
-and unfocused windows.
+With the generic action API enabled in Custom Hotkeys, Ctrl+wheel up zooms in
+and Ctrl+wheel down zooms out. Ordinary scrolling keeps its normal action.
+Change or clear either binding in **Options > Custom Hotkeys**. The bindings
+apply in live matches while the game has focus. A successful change uses the
+game's ordinary confirmation sound.
+
+Without Custom Hotkeys, the original E / Ctrl+E controls apply. Older
+`hotkey.mode`, `hotkey.zoom_in`, `hotkey.zoom_out`, and
+`hotkey.suppress_vanilla` configuration values still apply in standalone mode.
+The earlier Custom Hotkeys wheel preview also works when its
+`registerActionHandler` API is available.
 
 The optional menu-resolution setting returns to a chosen resolution after leaving
-the map. It remains off by default. Settings from the old Zoom key dropdowns are
-superseded by Hotkeys profiles; explicit Hotkeys choices are preserved.
+the map. It is off by default. See [ownership and remaining acceptance](docs/ownership.md).
 
-The module owns the resolution ladder and native display action. Custom Hotkeys
-owns input, conflict checks and profiles. See [ownership and remaining acceptance](docs/ownership.md).
-Runtime source and option files are maintained directly; there is no generated
-duplicate of the module code. Tools and tests are excluded by `files.xml`.
-
-Run `python tools/test_module.py` for offline component checks. These do not replace
-normal Crusader/Extreme gameplay, graphics or Recorder validation.
+Run `python tools/test_module.py` for component checks. The eight non-English
+action labels and description edits are machine translations pending human review.

@@ -1,3 +1,3 @@
 # Resolution Based Zoom
 
-Ajoute des niveaux de zoom en changeant la résolution. Utilisez Ctrl+molette ou modifiez les commandes dans Custom Hotkeys.
+Ajoute des paliers de zoom en modifiant la résolution de l’écran. Avec Custom Hotkeys, utilisez Ctrl+molette ou modifiez les deux raccourcis. Sans ce module, utilisez E pour agrandir et Ctrl+E pour réduire.

@@ -1,3 +1,3 @@
 # Resolution Based Zoom
 
-Ergänzt Zoomstufen durch Ändern der Bildschirmauflösung. Mit Strg+Mausrad zoomen; die Steuerung lässt sich in Custom Hotkeys ändern.
+Erweitert den Zoom um Stufen, die die Bildschirmauflösung ändern. Mit Custom Hotkeys zoomst du per Strg+Mausrad und kannst beide Tastenbelegungen ändern. Ohne das Modul zoomst du mit E hinein und mit Strg+E hinaus.

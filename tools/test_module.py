@@ -120,7 +120,7 @@ class Game(object):
         self.hooks['screen' if address == SCREEN_SITE else 'key'] = callback
 
     # --- driving it ----------------------------------------------------------------
-    def start(self, config, grid_overlay=False):
+    def start(self, config, grid_overlay=False, provider='generic'):
         self.lua = lupa.LuaRuntime(unpack_returned_tuples=True)
         globals_ = self.lua.globals()
         globals_.core = self.lua.table_from({
@@ -139,12 +139,25 @@ class Game(object):
         globals_.WARNING, globals_.INFO = -1, 0
 
         self.actions = {}
-        def register(_, action, callback):
-            assert action not in self.actions
-            self.actions[action] = callback
+        self.lua.execute("package.path = " + repr(REPO.replace(os.sep, '/') + '/?.lua;') + " .. package.path")
+        self.action_specs = {}
+        def register(spec):
+            identifier = spec.id if provider == 'generic' else None
+            assert identifier is not None and identifier not in self.actions
+            self.action_specs[identifier] = spec
+            self.actions[identifier] = spec.callback
         globals_.register_external = register
-        api = self.lua.eval('function(self, id, callback) return register_external(self,id,callback) end')
-        globals_.modules = self.lua.table_from({'custom-hotkeys': self.lua.table_from({'registerActionHandler': api})})
+        globals_.modules = self.lua.table_from({})
+        if provider == 'generic':
+            api = self.lua.eval('function(self, spec) register_external(spec); return true end')
+            globals_.modules['custom-hotkeys'] = self.lua.table_from({'registerAction': api})
+        elif provider == 'legacy':
+            def legacy_register(identifier, callback):
+                self.actions[identifier] = callback
+            globals_.register_legacy = legacy_register
+            api = self.lua.eval('function(self, id, callback) register_legacy(id,callback); return true end')
+            globals_.modules['custom-hotkeys'] = self.lua.table_from({'registerActionHandler': api})
+        self.provider = provider
         if grid_overlay:
             globals_.modules['resource-grid-overlay'] = self.lua.table_from({})
         module = self.lua.eval('load')(SOURCE, 'init.lua')()
@@ -154,7 +167,12 @@ class Game(object):
 
     def zoom(self, action):
         assert action in ('in', 'out')
-        self.actions['view.resolution-zoom-' + action]()
+        prefix = 'ext.resolution-based-zoom.' if self.provider == 'generic' else 'view.resolution-zoom-'
+        self.actions[prefix + action]()
+        return self
+
+    def key(self, virtual_key, repeated=False):
+        self.hooks['key'](self.lua.table_from({'ESI': virtual_key, 'ECX': (1 << 30) if repeated else 0}))
         return self
 
     def change_screen(self, screen):
@@ -234,6 +252,22 @@ def main():
 
     check('no keyboard dispatcher hook', 'key' in Game().start({}).hooks, False)
     check('no keyboard table writes', Game().start({}).suppressed_keys, [])
+    action = Game().start({}).action_specs['ext.resolution-based-zoom.in']
+    check('generic default wheel', (action.default.wheel, action.default.mods), ('up', 1))
+    check('game click sound used on success', action.sound, 'click')
+    check('all nine action languages', set(action.label.keys()),
+          {'en', 'de', 'fr', 'ru', 'hu', 'tr', 'ch', 'es', 'fa'})
+    check('older shared provider still supported',
+          Game().start({}, provider='legacy').zoom('in').resolution, '1600x900')
+    print('\nWithout Custom Hotkeys, the original configured native key path works')
+    fallback_config = {'hotkey': {'mode': 'two_keys', 'zoom_in': 'letter_f', 'zoom_out': 'letter_t'}}
+    game = Game().start(fallback_config, provider=None)
+    check('configured zoom in on F', game.key(0x46).resolution, '1600x900')
+    check('repeated F ignored', game.key(0x46, repeated=True).resolution, '1600x900')
+    check('configured zoom out on T', game.key(0x54).resolution, '1920x1080')
+    check('no dispatch while in menu', game.change_screen(IN_MENU).key(0x46).resolution, '1920x1080')
+    game = Game(missing=(GUARD_SITE,)).start(fallback_config, provider=None)
+    check('missing guard leaves native keys alone', 'key' in game.hooks, False)
 
     print()
     print('\nResource Grid Overlay retains the shared screen-change hook')

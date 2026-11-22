@@ -1,3 +1,3 @@
 # Resolution Based Zoom
 
-A felbontás váltásával további nagyítási szinteket ad. Ctrl+görgővel használható, a vezérlés a Custom Hotkeys modulban módosítható.
+A képernyőfelbontás módosításával új nagyítási fokozatokat ad. A Custom Hotkeys modullal a Ctrl+görgő nagyít vagy kicsinyít, és mindkét művelet átköthető. A modul nélkül az E nagyít, a Ctrl+E kicsinyít.

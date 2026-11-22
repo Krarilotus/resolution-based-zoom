@@ -1,4 +1,4 @@
--- Resolution Based Zoom: display actions only. Custom Hotkeys owns input.
+-- Resolution Based Zoom owns the display action. Use shared input when available.
 
 -- Resolution id -> pixel size, matching the game's own hardcoded list. Id 0x14 (640x480)
 -- is deliberately absent: it falls outside the 16-entry supported-resolution array.
@@ -236,6 +236,7 @@ local function switchResolution(state, applyResolution, targetResolutionID)
 
   core.writeInteger(state.pendingSelection, targetResolutionID)
   applyResolution()
+  return core.readInteger(state.appliedResolution)==targetResolutionID
 end
 
 ---Move one step along the zoom ladder and apply the result.
@@ -258,7 +259,7 @@ local function zoom(state, applyResolution, direction)
     end
   end
 
-  switchResolution(state, applyResolution, ladder[index])
+  return switchResolution(state, applyResolution, ladder[index])
 end
 
 ---Put the game back on the configured resolution. Called when the game is about to
@@ -277,8 +278,9 @@ return {
 
   enable = function(self, config)
     config = config or {}
-    local hotkeys=assert(modules['custom-hotkeys'], 'Resolution Based Zoom requires Custom Hotkeys 0.2.3')
-    assert(type(hotkeys.registerActionHandler)=='function', 'Custom Hotkeys action API is unavailable')
+    local hotkeys=modules['custom-hotkeys']
+    local shared=hotkeys and type(hotkeys.registerAction)=='function'
+    local oldShared=hotkeys and type(hotkeys.registerActionHandler)=='function'
     local videoOptionsHandler = core.exposeCode(
       core.AOBScan(VIDEO_OPTIONS_HANDLER_AOB), 1, 0)
     local function applyResolution()
@@ -301,7 +303,7 @@ return {
     end
     local inGameScreens = {}
     local inGameScreenSite = nil
-    if resetResolutionID ~= nil then
+    if resetResolutionID ~= nil or not (shared or oldShared) then
       inGameScreenSite = scanOptional(IN_GAME_SCREEN_AOB, "the on-the-map screen ids")
     end
     if inGameScreenSite ~= nil then
@@ -320,8 +322,24 @@ return {
       liveZoomFlag = core.readInteger(zoomSyncSite + OFFSET_LIVE_ZOOM_FLAG),
     }
 
-    hotkeys:registerActionHandler('view.resolution-zoom-in', function() zoom(state, applyResolution, ZOOM_IN) end)
-    hotkeys:registerActionHandler('view.resolution-zoom-out', function() zoom(state, applyResolution, ZOOM_OUT) end)
+    local function zoomIn() return zoom(state,applyResolution,ZOOM_IN) end
+    local function zoomOut() return zoom(state,applyResolution,ZOOM_OUT) end
+    if shared then
+      local labels=require('action_labels')
+      hotkeys:registerAction{
+        id='ext.resolution-based-zoom.in', label=labels['in'], category=labels.category,
+        context={kind='world'}, default={wheel='up',mods=1}, callback=zoomIn, sound='click',
+      }
+      hotkeys:registerAction{
+        id='ext.resolution-based-zoom.out', label=labels.out, category=labels.category,
+        context={kind='world'}, default={wheel='down',mods=1}, callback=zoomOut, sound='click',
+      }
+    elseif oldShared then
+      hotkeys:registerActionHandler('view.resolution-zoom-in',zoomIn)
+      hotkeys:registerActionHandler('view.resolution-zoom-out',zoomOut)
+    else
+      require('fallback')(config,inGameScreens,scanOptional,zoomIn,zoomOut)
+    end
 
     local screenChangeSite = nil
     if resetResolutionID ~= nil and next(inGameScreens) ~= nil then
@@ -338,7 +356,7 @@ return {
       end, screenChangeSite, SIZE_SCREEN_CHANGE_HOOK)
     end
 
-    log(INFO, 'Resolution Based Zoom actions registered with Custom Hotkeys')
+    if shared or oldShared then log(INFO, 'Resolution Based Zoom actions registered with Custom Hotkeys') end
   end,
 
   disable = function(self, config) end,

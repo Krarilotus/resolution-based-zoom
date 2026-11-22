@@ -17,7 +17,8 @@ The earlier Custom Hotkeys wheel preview also works when its
 `registerActionHandler` API is available.
 
 The optional menu-resolution setting returns to a chosen resolution after leaving
-the map. It is off by default. See [ownership and remaining acceptance](docs/ownership.md).
+the map. It is off by default and unavailable while the standalone Resource Grid
+Overlay is active. See [ownership and remaining acceptance](docs/ownership.md).
 
 Run `python tools/test_module.py` for component checks. The eight non-English
 action labels and description edits are machine translations pending human review.

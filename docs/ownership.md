@@ -1,11 +1,11 @@
 # Input and display ownership
 
-When Custom Hotkeys exposes `registerAction`, it owns zoom input, profiles and
-the binding editor. Zoom registers two local world actions during module
+When Custom Hotkeys exposes `registerAction`, it owns zoom input, the saved
+bindings and the binding editor. Zoom registers two local world actions during module
 enable and suggests Ctrl+wheel. Without that API, Zoom uses the original keyboard route
 from `619e426` with its saved options. It leaves Legacy's key table alone while
 Legacy WASD is active. The generic registration path uses the existing Hotkeys
-catalog, context, message chain and profile store.
+catalog, context, message chain and its bindings in the UCP config.
 
 For display actions, inspected `ui` 1.0.1 (`ui/game.lua`, `init.lua`, header and
 manager) exposes menu/render primitives, not a resolution-step/apply API.
@@ -24,6 +24,6 @@ Supporting both features together requires a common screen-lifecycle owner.
 Offline tests check resolution order, supported sizes, aspect-ratio filtering,
 end stops, native Z zoom preservation and reset behavior. Hotkeys tests cover
 modifier/wheel consumption, fractional turns, cancellation, unavailable providers,
-profile migration and binding conflicts in Lua 5.4 and LuaJIT. These are component
+saved-binding handling and binding conflicts in Lua 5.4 and LuaJIT. These are component
 tests, not gameplay/graphics/Recorder acceptance. SHC/Extreme native acceptance
 and installed launcher layouts remain pending; multiplayer testing is player-owned.

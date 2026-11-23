@@ -15,7 +15,6 @@ its native key table takes precedence over Zoom suppression.
 
 The optional menu-resolution setting returns to a chosen resolution after leaving
 the map. It is off by default and unavailable while the standalone Resource Grid
-Overlay is active. See [ownership and remaining acceptance](docs/ownership.md).
+Overlay is active.
 
-Run `python tools/test_module.py` for component checks. The eight non-English
-action labels and description edits are machine translations pending human review.
+Run `python tools/test_module.py` for component checks.

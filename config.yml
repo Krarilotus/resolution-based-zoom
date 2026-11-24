@@ -7,6 +7,6 @@ config-sparse:
         reset:
           resolution:
             contents:
-              value: 'off'
+              suggested-value: 'off'
   plugins: {}
   load-order: []

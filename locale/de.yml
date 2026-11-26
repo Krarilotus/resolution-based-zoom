@@ -5,3 +5,4 @@ reset_resolution: Menüauflösung
 reset_resolution_tooltip: "Beim Verlassen der Karte zu dieser Auflösung wechseln."
 tags.interface: Oberfläche
 tags.tools: Werkzeuge
+zoom_enabled: Zoom-Steuerung

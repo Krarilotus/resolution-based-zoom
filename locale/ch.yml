@@ -5,3 +5,4 @@ reset_resolution: 菜单分辨率
 reset_resolution_tooltip: "离开地图时恢复此分辨率。"
 tags.interface: 界面
 tags.tools: 工具
+zoom_enabled: 缩放控制

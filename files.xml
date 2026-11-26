@@ -1,4 +1,4 @@
-<config><files>
+<module><files>
   <file src="LICENSE" />
   <file src="config.yml" />
   <file src="definition.yml" />
@@ -8,4 +8,4 @@
   <file src="locale" />
   <file src="options.yml" />
   <file src="CREDITS.md" />
-</files></config>
+</files></module>

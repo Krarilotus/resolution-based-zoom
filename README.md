@@ -3,6 +3,10 @@
 Adds zoom steps by switching between supported display resolutions. The native Z
 zoom stays available. Each step changes display mode and can briefly flicker.
 
+The zoom controls are off by default. Turn on **Zoom controls** (`zoom.enabled`)
+or use a preset that does; until then the module registers no actions and hooks
+no keys.
+
 With the generic action API enabled in Custom Hotkeys, Ctrl+wheel up zooms in
 and Ctrl+wheel down zooms out. Ordinary scrolling keeps its normal action.
 Change or clear either binding in **Options > Custom Hotkeys**. The bindings

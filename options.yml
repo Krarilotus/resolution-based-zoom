@@ -8,6 +8,12 @@ options:
   text: '{{reset_resolution_tooltip}}'
   hasHeader: true
   children:
+  - url: resolution-based-zoom.zoom.enabled
+    name: resolution-based-zoom-zoom-enabled
+    text: '{{zoom_enabled}}'
+    display: Switch
+    contents:
+      value: false
   - url: resolution-based-zoom.reset.resolution
     name: resolution-based-zoom-reset-resolution
     text: '{{reset_resolution}}'

@@ -43,6 +43,8 @@ DISPLAY = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 14, 15}
 
 failures = []
 
+ZOOM = {'zoom': {'enabled': True}}
+
 
 def check(label, got, want):
     ok = got == want
@@ -196,7 +198,7 @@ class Game(object):
 
 def main():
     print('zoom ladder: only window-shaped sizes, smallest to largest, no wrap')
-    game = Game().start({})
+    game = Game().start(ZOOM)
     check('zoom in', game.zoom('in').resolution, '1600x900')
     check('zoom in', game.zoom('in').resolution, '1366x768')
     check('zoom in', game.zoom('in').resolution, '1280x720')
@@ -208,20 +210,20 @@ def main():
 
     print('\n1360x768 is dropped: too close to 1366x768 to be a real step')
     check('ladder never lands on it',
-          '1360x768' not in [Game().start({}).zoom('in').resolution], True)
+          '1360x768' not in [Game().start(ZOOM).zoom('in').resolution], True)
 
     print('\na 4:3 window zooms through 4:3 sizes only')
-    game = Game(window=(1024, 768), resolution=2).start({})
+    game = Game(window=(1024, 768), resolution=2).start(ZOOM)
     check('zoom in', game.zoom('in').resolution, '800x600')
     check('zoom out', game.zoom('out').resolution, '1024x768')
     check('zoom out', game.zoom('out').resolution, '1600x1200')
 
     print('\nstarting off-ladder (5:4 on a 16:9 window) snaps onto it')
-    game = Game(resolution=4).start({})
+    game = Game(resolution=4).start(ZOOM)
     check('first action snaps to the nearest step', game.zoom('in').resolution, '1600x900')
 
     print('\nthe two provider actions select opposite directions')
-    game = Game().start({})
+    game = Game().start(ZOOM)
     check('zoom in', game.zoom('in').resolution, '1600x900')
     check('zoom out', game.zoom('out').resolution, '1920x1080')
     check('zoom out stops at the largest supported step', game.zoom('out').resolution, '1920x1080')
@@ -229,7 +231,7 @@ def main():
     print('\nthe vanilla Z zoom survives a resolution change')
     for live in (0, 1):
         for menu in (0, 1):
-            game = Game(live_zoom=live, menu_zoom=menu).start({})
+            game = Game(live_zoom=live, menu_zoom=menu).start(ZOOM)
             game.zoom('in').zoom('in').zoom('out')
             check('live=%d menu=%d' % (live, menu), game.vanilla_zoom, live)
 
@@ -237,33 +239,33 @@ def main():
     # tested in Custom Hotkeys. This module installs no input hook.
 
     print('\nleaving the map restores the configured size')
-    config = dict({}, reset={'resolution': 'r1920x1080'})
+    config = dict(ZOOM, reset={'resolution': 'r1920x1080'})
     game = Game().start(config).zoom('in').zoom('in')
     check('zoomed in', game.resolution, '1366x768')
     check('still on the map', game.change_screen(0x0E).resolution, '1366x768')
     check('left to a menu', game.change_screen(IN_MENU).resolution, '1920x1080')
 
-    game = Game().start(dict({}, reset={'resolution': 'r2560x1440'}))
+    game = Game().start(dict(ZOOM, reset={'resolution': 'r2560x1440'}))
     game.zoom('in').change_screen(IN_MENU)
     check('a size the display cannot do is skipped', game.resolution, '1600x900')
 
-    check('no keyboard dispatcher hook', 'key' in Game().start({}).hooks, False)
-    check('no keyboard table writes', Game().start({}).suppressed_keys, [])
-    action = Game().start({}).action_specs['ext.resolution-based-zoom.in']
+    check('no keyboard dispatcher hook', 'key' in Game().start(ZOOM).hooks, False)
+    check('no keyboard table writes', Game().start(ZOOM).suppressed_keys, [])
+    action = Game().start(ZOOM).action_specs['ext.resolution-based-zoom.in']
     check('generic default wheel', (action.default.wheel, action.default.mods), ('up', 1))
     check('only fields Custom Hotkeys accepts', sorted(k for k, _ in action.items()),
           ['callback', 'category', 'context', 'default', 'id', 'label'])
     check('all nine action languages', set(action.label.keys()),
           {'en', 'de', 'fr', 'ru', 'hu', 'tr', 'ch', 'es', 'fa'})
     print('\nWithout Custom Hotkeys, the original configured native key path works')
-    fallback_config = {'hotkey': {'mode': 'two_keys', 'zoom_in': 'letter_f', 'zoom_out': 'letter_t'}}
+    fallback_config = {'zoom': {'enabled': True}, 'hotkey': {'mode': 'two_keys', 'zoom_in': 'letter_f', 'zoom_out': 'letter_t'}}
     game = Game().start(fallback_config, provider=None)
     check('configured zoom in on F', game.key(0x46).resolution, '1600x900')
     check('repeated F ignored', game.key(0x46, repeated=True).resolution, '1600x900')
     check('configured zoom out on T', game.key(0x54).resolution, '1920x1080')
     check('Custom Hotkeys without the action API uses the original keys',
           Game().start(fallback_config, provider='without-api').key(0x46).resolution, '1600x900')
-    suppression = {'hotkey': {'mode': 'two_keys', 'zoom_in': 'letter_s', 'suppress_vanilla': True}}
+    suppression = {'zoom': {'enabled': True}, 'hotkey': {'mode': 'two_keys', 'zoom_in': 'letter_s', 'suppress_vanilla': True}}
     check('explicit suppression without Legacy', Game().start(suppression, provider=None).suppressed_keys,
           [0x52, 0x53])
     legacy = Game().start(suppression, provider=None, legacy_keys=True)
@@ -275,7 +277,7 @@ def main():
 
     print()
     print('\nResource Grid Overlay retains the shared screen-change hook')
-    game = Game().start({'reset': {'resolution': 'r1920x1080'}}, grid_overlay=True)
+    game = Game().start(dict(ZOOM, reset={'resolution': 'r1920x1080'}), grid_overlay=True)
     check('zoom still works', game.zoom('in').resolution, '1600x900')
     check('shared hook remains available', 'screen' in game.hooks, False)
     check('leaving the map keeps the current resolution', game.change_screen(IN_MENU).resolution, '1600x900')

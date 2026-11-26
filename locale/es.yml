@@ -5,3 +5,4 @@ reset_resolution: Resolución de menús
 reset_resolution_tooltip: "Volver a esta resolución al salir del mapa."
 tags.interface: Interfaz
 tags.tools: Herramientas
+zoom_enabled: Controles de zoom

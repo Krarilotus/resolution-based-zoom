@@ -5,3 +5,4 @@ reset_resolution: Menü felbontása
 reset_resolution_tooltip: "A térkép elhagyásakor erre vált."
 tags.interface: Kezelőfelület
 tags.tools: Eszközök
+zoom_enabled: Nagyítás vezérlése

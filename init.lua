@@ -278,6 +278,7 @@ return {
 
   enable = function(self, config)
     config = config or {}
+    local zoomEnabled = (config.zoom or {}).enabled == true
     local hotkeys=modules['custom-hotkeys']
     local shared=hotkeys and type(hotkeys.registerAction)=='function'
     local videoOptionsHandler = core.exposeCode(
@@ -302,7 +303,7 @@ return {
     end
     local inGameScreens = {}
     local inGameScreenSite = nil
-    if resetResolutionID ~= nil or not shared then
+    if resetResolutionID ~= nil or (zoomEnabled and not shared) then
       inGameScreenSite = scanOptional(IN_GAME_SCREEN_AOB, "the on-the-map screen ids")
     end
     if inGameScreenSite ~= nil then
@@ -323,7 +324,7 @@ return {
 
     local function zoomIn() return zoom(state,applyResolution,ZOOM_IN) end
     local function zoomOut() return zoom(state,applyResolution,ZOOM_OUT) end
-    if shared then
+    if zoomEnabled and shared then
       local labels=require('action_labels')
       hotkeys:registerAction{
         id='ext.resolution-based-zoom.in', label=labels['in'], category=labels.category,
@@ -333,7 +334,7 @@ return {
         id='ext.resolution-based-zoom.out', label=labels.out, category=labels.category,
         context={kind='world'}, default={wheel='down',mods=1}, callback=zoomOut,
       }
-    else
+    elseif zoomEnabled then
       require('fallback')(config,inGameScreens,scanOptional,zoomIn,zoomOut)
     end
 
@@ -352,7 +353,7 @@ return {
       end, screenChangeSite, SIZE_SCREEN_CHANGE_HOOK)
     end
 
-    if shared then log(INFO, 'Resolution Based Zoom actions registered with Custom Hotkeys') end
+    if zoomEnabled and shared then log(INFO, 'Resolution Based Zoom actions registered with Custom Hotkeys') end
   end,
 
   disable = function(self, config) end,

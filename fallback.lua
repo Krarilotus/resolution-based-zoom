@@ -247,7 +247,10 @@ end
 return function(config, inGameScreens, scanOptional, zoomIn, zoomOut)
   local screenIDSite = scanOptional(SCREEN_ID_AOB, "the current screen id")
   local guardSite = scanOptional(IN_GAME_GUARD_AOB, "the in-game input guard")
-  if not screenIDSite or not guardSite or not next(inGameScreens) then return end
+  if not screenIDSite or not guardSite or not next(inGameScreens) then
+    log(ERROR, "Zoom hotkeys are off. The in-game input checks could not be bound.")
+    return
+  end
   local state = {
     screenID = core.readInteger(screenIDSite + OFFSET_SCREEN_ID),
     inGameScreens = inGameScreens,
@@ -258,11 +261,11 @@ return function(config, inGameScreens, scanOptional, zoomIn, zoomOut)
 
   local zoomInKey = resolveHotkey(hotkeyConfig.zoom_in, DEFAULT_ZOOM_IN_KEY)
   local zoomOutKey = nil
+  local zoomOutProblem
   if not singleKeyMode then
     zoomOutKey = resolveHotkey(hotkeyConfig.zoom_out, DEFAULT_ZOOM_OUT_KEY)
     if zoomInKey == zoomOutKey then
-      log(WARNING, "resolution-based-zoom: both zoom keys are the same key, "
-        .. "only zooming in is bound.")
+      zoomOutProblem = "Both zoom shortcuts use the same key."
       zoomOutKey = nil
     end
   end
@@ -277,11 +280,17 @@ return function(config, inGameScreens, scanOptional, zoomIn, zoomOut)
           core.readInteger(callSite + OFFSET_GET_ASYNC_KEY_STATE_IMPORT)), 1, 0)
     else
       singleKeyMode = false -- without Ctrl the key can only zoom in
+      zoomOutProblem = "The Ctrl key state could not be read."
     end
   end
 
   local dispatchSite = scanOptional(KEY_DISPATCH_AOB, "the keyboard dispatch")
-  if dispatchSite == nil then return end
+  if dispatchSite == nil then
+    log(ERROR, "Zoom hotkeys are off. The keyboard dispatch could not be bound.")
+    return
+  end
+
+  if zoomOutProblem then log(ERROR, "The zoom-out hotkey is off. " .. zoomOutProblem) end
 
   -- Exactly the keys this module listens to, and no others: in one-key mode that is
   -- the zoom key alone, since the zoom out key is never read there.
@@ -296,8 +305,7 @@ return function(config, inGameScreens, scanOptional, zoomIn, zoomOut)
   if hotkeyConfig.suppress_vanilla == true and not legacyKeysActive() then
     local doNothingCase = findDoNothingCase(dispatchSite)
     if doNothingCase == nil then
-      log(WARNING, "resolution-based-zoom: could not find the do-nothing key case; "
-        .. "the zoom keys keep their normal in-game job.")
+      log(ERROR, "Suppressing the zoom keys' normal actions is off.")
     else
       local keyCaseTable = core.readInteger(dispatchSite + OFFSET_KEY_CASE_TABLE)
       for _, virtualKeyCode in ipairs(boundKeys) do

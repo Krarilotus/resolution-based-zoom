@@ -298,13 +298,16 @@ return {
     if resetResolutionID ~= nil and modules["resource-grid-overlay"] then
       -- Grid Overlay needs the same transition site for its map lifecycle.
       -- Optional automatic reset must not take the site before it can bind.
-      log(WARNING, "resolution-based-zoom: automatic menu reset is unavailable with Resource Grid Overlay")
+      log(ERROR, "Automatic menu resolution reset is off because Resource Grid Overlay uses the same screen transition.")
       resetResolutionID = nil
     end
     local inGameScreens = {}
     local inGameScreenSite = nil
     if resetResolutionID ~= nil or (zoomEnabled and not shared) then
       inGameScreenSite = scanOptional(IN_GAME_SCREEN_AOB, "the on-the-map screen ids")
+    end
+    if resetResolutionID ~= nil and inGameScreenSite == nil then
+      log(ERROR, "Automatic menu resolution reset is off. The map screens could not be found.")
     end
     if inGameScreenSite ~= nil then
       for _, offset in ipairs(OFFSETS_IN_GAME_SCREEN_IDS) do
@@ -341,6 +344,9 @@ return {
     local screenChangeSite = nil
     if resetResolutionID ~= nil and next(inGameScreens) ~= nil then
       screenChangeSite = scanOptional(SCREEN_CHANGE_AOB, "the screen change function")
+    end
+    if resetResolutionID ~= nil and next(inGameScreens) ~= nil and screenChangeSite == nil then
+      log(ERROR, "Automatic menu resolution reset is off. The screen change could not be bound.")
     end
     if screenChangeSite ~= nil then
       -- EBP already holds the screen the game is moving to, and nothing has been

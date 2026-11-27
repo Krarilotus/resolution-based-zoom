@@ -102,15 +102,9 @@ local LAST_DISPATCHED_KEY = 0x79
 local GET_ASYNC_KEY_STATE_AOB = "6A 28 FF 15 ? ? ? ? 66 85 C0"
 local OFFSET_GET_ASYNC_KEY_STATE_IMPORT = 4
 
--- The prologue every in-game key handler shares, pinned to the game-speed-up one:
---   test ecx,0x40000000 / jne tail / mov ecx,screenObject / call isInGameScreen /
---   test eax,eax / je tail / cmp dword [menuGuard],-1 / jne tail
--- `menuGuard` is -1 exactly when the game is not capturing input for something else.
--- Stops at the menuGuard operand: ucp2-legacy's `o_gamespeed` rewrites the handler body
--- after it. This prefix matches five handler prologues and every one of them yields the
--- same two addresses.
+-- The in-game selection key checks the repeat flag, the map screen and the menu guard.
 local IN_GAME_GUARD_AOB = "F7 C1 00 00 00 40 0F 85 ? ? ? ? B9 ? ? ? ? E8 ? ? ? ? 85 C0 "
-    .. "0F 84 ? ? ? ? 83 3D ? ? ? ? FF"
+    .. "0F 84 ? ? ? ? 83 3D ? ? ? ? FF 75 77 A1 ? ? ? ? 8B 0C 85"
 local OFFSET_MENU_GUARD = 32
 local MENU_GUARD_IDLE = -1
 
@@ -244,9 +238,9 @@ local function legacyKeysActive()
   return true
 end
 
-return function(config, inGameScreens, scanOptional, zoomIn, zoomOut)
-  local screenIDSite = scanOptional(SCREEN_ID_AOB, "the current screen id")
-  local guardSite = scanOptional(IN_GAME_GUARD_AOB, "the in-game input guard")
+return function(hotkeyConfig, inGameScreens, zoomIn, zoomOut)
+  local screenIDSite = core.AOBScanUnique(SCREEN_ID_AOB)
+  local guardSite = core.AOBScanUnique(IN_GAME_GUARD_AOB)
   if not screenIDSite or not guardSite or not next(inGameScreens) then
     log(ERROR, "Zoom hotkeys are off. The in-game input checks could not be bound.")
     return
@@ -256,8 +250,12 @@ return function(config, inGameScreens, scanOptional, zoomIn, zoomOut)
     inGameScreens = inGameScreens,
     menuGuard = core.readInteger(guardSite + OFFSET_MENU_GUARD),
   }
-  local hotkeyConfig = config.hotkey or {}
-  local singleKeyMode = (hotkeyConfig.mode or "one_key") == "one_key"
+  local mode = hotkeyConfig.mode
+  if mode ~= "one_key" and mode ~= "two_keys" then
+    log(WARNING, "Unknown zoom key mode. Using one key.")
+    mode = "one_key"
+  end
+  local singleKeyMode = mode == "one_key"
 
   local zoomInKey = resolveHotkey(hotkeyConfig.zoom_in, DEFAULT_ZOOM_IN_KEY)
   local zoomOutKey = nil
@@ -273,7 +271,7 @@ return function(config, inGameScreens, scanOptional, zoomIn, zoomOut)
   -- Ctrl is only needed in single-key mode, and the game does not track it itself.
   local getAsyncKeyState = nil
   if singleKeyMode then
-    local callSite = scanOptional(GET_ASYNC_KEY_STATE_AOB, "the GetAsyncKeyState import")
+    local callSite = core.AOBScanUnique(GET_ASYNC_KEY_STATE_AOB)
     if callSite ~= nil then
       getAsyncKeyState = core.exposeCode(
         wrapStdcallImport(
@@ -284,7 +282,7 @@ return function(config, inGameScreens, scanOptional, zoomIn, zoomOut)
     end
   end
 
-  local dispatchSite = scanOptional(KEY_DISPATCH_AOB, "the keyboard dispatch")
+  local dispatchSite = core.AOBScanUnique(KEY_DISPATCH_AOB)
   if dispatchSite == nil then
     log(ERROR, "Zoom hotkeys are off. The keyboard dispatch could not be bound.")
     return
@@ -302,16 +300,13 @@ return function(config, inGameScreens, scanOptional, zoomIn, zoomOut)
   -- Optional: repoint those keys at the do-nothing case so they only zoom. Left alone
   -- by default, in which case a key keeps whatever the game does with it (E, for one,
   -- also sets selected troops to aggressive) and the zoom happens on top.
+  local keyCaseTable, doNothingCase
   if hotkeyConfig.suppress_vanilla == true and not legacyKeysActive() then
-    local doNothingCase = findDoNothingCase(dispatchSite)
+    doNothingCase = findDoNothingCase(dispatchSite)
     if doNothingCase == nil then
       log(ERROR, "Suppressing the zoom keys' normal actions is off.")
     else
-      local keyCaseTable = core.readInteger(dispatchSite + OFFSET_KEY_CASE_TABLE)
-      for _, virtualKeyCode in ipairs(boundKeys) do
-        core.writeCodeByte(
-          keyCaseTable + (virtualKeyCode - FIRST_DISPATCHED_KEY), doNothingCase)
-      end
+      keyCaseTable = core.readInteger(dispatchSite + OFFSET_KEY_CASE_TABLE)
     end
   end
 
@@ -329,4 +324,9 @@ return function(config, inGameScreens, scanOptional, zoomIn, zoomOut)
     end
     return registers
   end, dispatchSite + OFFSET_DISPATCH_JUMP, SIZE_DISPATCH_JUMP)
+  if keyCaseTable then
+    for _, virtualKeyCode in ipairs(boundKeys) do
+      core.writeCodeByte(keyCaseTable + (virtualKeyCode - FIRST_DISPATCHED_KEY), doNothingCase)
+    end
+  end
 end

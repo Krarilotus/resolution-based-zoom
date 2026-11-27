@@ -93,21 +93,26 @@ local SIZE_SCREEN_CHANGE_HOOK = 6
 local IN_GAME_SCREEN_AOB = "8B 41 0C 83 F8 0C 74 0D 83 F8 0E 74 08 83 F8 10 74 03 33 C0 C3"
 local OFFSETS_IN_GAME_SCREEN_IDS = { 5, 10, 15 }
 
----Scan for an AOB that the module can manage without. Other modules patch game code
----before this one runs (ucp2-legacy rewrites both the game-speed handlers and the key
----tables, for instance), so a pattern that has been overwritten must degrade the
----feature that needs it, never take the game down with it.
----@param pattern string
----@param purpose string what the address is for, for the log line
----@return number|nil address
-local function scanOptional(pattern, purpose)
-  local found, address = pcall(core.AOBScan, pattern)
-  if not found or address == nil then
-    log(WARNING, "resolution-based-zoom: could not find " .. purpose
-      .. "; that part is disabled. Another module has probably patched it.")
-    return nil
-  end
+local function scan(pattern, purpose)
+  local address, reason = core.AOBScanUnique(pattern)
+  if address == nil then error(purpose .. " " .. reason, 0) end
   return address
+end
+
+local function choice(config, group, field, default)
+  local section = config[group]
+  if section == nil then return default end
+  if type(section) ~= "table" then
+    log(ERROR, "Resolution Based Zoom: invalid " .. group .. " settings.")
+    return default
+  end
+  local value = section[field]
+  if value == nil then return default end
+  if type(value) ~= type(default) then
+    log(ERROR, "Resolution Based Zoom: invalid " .. group .. " " .. field .. " type.")
+    return default
+  end
+  return value
 end
 
 ---@class ResolutionState
@@ -274,94 +279,119 @@ local function resetResolution(state, applyResolution, resolutionID)
   switchResolution(state, applyResolution, resolutionID)
 end
 
-return {
+local function bindResolution()
+  local handler = scan(VIDEO_OPTIONS_HANDLER_AOB, "the video options handler")
+  local resolutionSite = scan(RESOLUTION_STATE_AOB, "the resolution state")
+  local zoomSite = scan(ZOOM_SYNC_AOB, "the native zoom state")
+  local supported = core.readInteger(resolutionSite + OFFSET_SUPPORTED_RESOLUTIONS)
+  local window = supported - SUPPORTED_RESOLUTIONS_IN_STRUCT
+  local state = {
+    pendingSelection = core.readInteger(resolutionSite + OFFSET_PENDING_SELECTION),
+    supportedResolutions = supported,
+    windowWidth = window + WINDOW_WIDTH_IN_STRUCT,
+    windowHeight = window + WINDOW_HEIGHT_IN_STRUCT,
+    appliedResolution = window + APPLIED_RESOLUTION_IN_STRUCT,
+    menuZoomSetting = core.readInteger(zoomSite + OFFSET_MENU_ZOOM_SETTING),
+    liveZoomFlag = core.readInteger(zoomSite + OFFSET_LIVE_ZOOM_FLAG),
+  }
+  local apply = core.exposeCode(handler, 1, 0)
+  return state, function() apply(MENU_ITEM_APPLY) end
+end
 
+local function registerZoom(hotkeys, zoomIn, zoomOut)
+  local labels = require("action_labels")
+  -- Custom Hotkeys registers one action at a time. Both callbacks become live together.
+  local registered = false
+  if hotkeys:registerAction{
+    id = "ext.resolution-based-zoom.in", label = labels["in"], category = labels.category,
+    context = {kind = "world"}, default = {wheel = "up", mods = 1},
+    callback = function() return registered and zoomIn() end,
+  } ~= true then return false end
+  registered = hotkeys:registerAction{
+    id = "ext.resolution-based-zoom.out", label = labels.out, category = labels.category,
+    context = {kind = "world"}, default = {wheel = "down", mods = 1},
+    callback = function() return registered and zoomOut() end,
+  } == true
+  return registered
+end
+
+return {
   enable = function(self, config)
     config = config or {}
-    local zoomEnabled = (config.zoom or {}).enabled == true
-    local hotkeys=modules['custom-hotkeys']
-    local shared=hotkeys and type(hotkeys.registerAction)=='function'
-    local videoOptionsHandler = core.exposeCode(
-      core.AOBScan(VIDEO_OPTIONS_HANDLER_AOB), 1, 0)
-    local function applyResolution()
-      videoOptionsHandler(MENU_ITEM_APPLY)
+    local zoomEnabled = choice(config, "zoom", "enabled", false)
+    local reset = choice(config, "reset", "resolution", "off")
+    local resetResolutionID = RESET_RESOLUTION_IDS[reset]
+    if reset ~= "off" and resetResolutionID == nil then
+      log(WARNING, "Unknown menu resolution. Automatic menu resolution reset is off.")
     end
-
-    local resolutionStateSite = core.AOBScan(RESOLUTION_STATE_AOB)
-    local supportedResolutions =
-      core.readInteger(resolutionStateSite + OFFSET_SUPPORTED_RESOLUTIONS)
-    local windowStruct = supportedResolutions - SUPPORTED_RESOLUTIONS_IN_STRUCT
-
-    local zoomSyncSite = core.AOBScan(ZOOM_SYNC_AOB)
-
-    local resetResolutionID = RESET_RESOLUTION_IDS[(config.reset or {}).resolution]
     if resetResolutionID ~= nil and modules["resource-grid-overlay"] then
-      -- Grid Overlay needs the same transition site for its map lifecycle.
-      -- Optional automatic reset must not take the site before it can bind.
-      log(WARNING, "Automatic menu resolution reset is off because Resource Grid Overlay uses the same screen transition.")
+      log(ERROR, "Automatic menu resolution reset is off because Resource Grid Overlay uses the same screen transition.")
       resetResolutionID = nil
     end
-    local inGameScreens = {}
-    local inGameScreenSite = nil
-    if resetResolutionID ~= nil or (zoomEnabled and not shared) then
-      inGameScreenSite = scanOptional(IN_GAME_SCREEN_AOB, "the on-the-map screen ids")
+    if not zoomEnabled and resetResolutionID == nil then return end
+
+    local ok, state, applyResolution = pcall(bindResolution)
+    if not ok then
+      local features = zoomEnabled and "Zoom hotkeys" or "Automatic menu resolution reset"
+      if zoomEnabled and resetResolutionID ~= nil then
+        features = features .. " and automatic menu resolution reset"
+      end
+      log(ERROR, features .. " disabled: " .. tostring(state))
+      return
     end
-    if resetResolutionID ~= nil and inGameScreenSite == nil then
-      log(ERROR, "Automatic menu resolution reset is off. The map screens could not be found.")
+
+    local inGameScreens
+    local function gameScreens()
+      if inGameScreens == nil then
+        local site = scan(IN_GAME_SCREEN_AOB, "the map screen IDs")
+        inGameScreens = {}
+        for _, offset in ipairs(OFFSETS_IN_GAME_SCREEN_IDS) do
+          inGameScreens[core.readByte(site + offset)] = true
+        end
+      end
+      return inGameScreens
     end
-    if inGameScreenSite ~= nil then
-      for _, offset in ipairs(OFFSETS_IN_GAME_SCREEN_IDS) do
-        inGameScreens[core.readByte(inGameScreenSite + offset)] = true
+
+    if zoomEnabled then
+      local function zoomIn() return zoom(state, applyResolution, ZOOM_IN) end
+      local function zoomOut() return zoom(state, applyResolution, ZOOM_OUT) end
+      local hotkeys = modules["custom-hotkeys"]
+      local shared = false
+      if hotkeys and type(hotkeys.registerAction) == "function" then
+        local accepted, result = pcall(registerZoom, hotkeys, zoomIn, zoomOut)
+        shared = accepted and result == true
+        if not shared then
+          log(WARNING, "Custom Hotkeys declined the zoom actions. Using standalone zoom keys.")
+        end
+      end
+      if not shared then
+        local bound, problem = pcall(function()
+          local keys = {
+            mode = choice(config, "hotkey", "mode", "one_key"),
+            zoom_in = choice(config, "hotkey", "zoom_in", "letter_e"),
+            zoom_out = choice(config, "hotkey", "zoom_out", "letter_r"),
+            suppress_vanilla = choice(config, "hotkey", "suppress_vanilla", false),
+          }
+          require("fallback")(keys, gameScreens(), zoomIn, zoomOut)
+        end)
+        if not bound then log(ERROR, "Zoom hotkeys are off: " .. tostring(problem)) end
       end
     end
 
-    local state = {
-      pendingSelection = core.readInteger(resolutionStateSite + OFFSET_PENDING_SELECTION),
-      supportedResolutions = supportedResolutions,
-      windowWidth = windowStruct + WINDOW_WIDTH_IN_STRUCT,
-      windowHeight = windowStruct + WINDOW_HEIGHT_IN_STRUCT,
-      appliedResolution = windowStruct + APPLIED_RESOLUTION_IN_STRUCT,
-      menuZoomSetting = core.readInteger(zoomSyncSite + OFFSET_MENU_ZOOM_SETTING),
-      liveZoomFlag = core.readInteger(zoomSyncSite + OFFSET_LIVE_ZOOM_FLAG),
-    }
-
-    local function zoomIn() return zoom(state,applyResolution,ZOOM_IN) end
-    local function zoomOut() return zoom(state,applyResolution,ZOOM_OUT) end
-    if zoomEnabled and shared then
-      local labels=require('action_labels')
-      hotkeys:registerAction{
-        id='ext.resolution-based-zoom.in', label=labels['in'], category=labels.category,
-        context={kind='world'}, default={wheel='up',mods=1}, callback=zoomIn,
-      }
-      hotkeys:registerAction{
-        id='ext.resolution-based-zoom.out', label=labels.out, category=labels.category,
-        context={kind='world'}, default={wheel='down',mods=1}, callback=zoomOut,
-      }
-    elseif zoomEnabled then
-      require('fallback')(config,inGameScreens,scanOptional,zoomIn,zoomOut)
+    if resetResolutionID ~= nil then
+      local bound, problem = pcall(function()
+        local screens = gameScreens()
+        local site = scan(SCREEN_CHANGE_AOB, "the screen change function")
+        core.detourCode(function(registers)
+          if not screens[registers.EBP] then
+            resetResolution(state, applyResolution, resetResolutionID)
+          end
+          return registers
+        end, site, SIZE_SCREEN_CHANGE_HOOK)
+      end)
+      if not bound then log(ERROR, "Automatic menu resolution reset is off: " .. tostring(problem)) end
     end
-
-    local screenChangeSite = nil
-    if resetResolutionID ~= nil and next(inGameScreens) ~= nil then
-      screenChangeSite = scanOptional(SCREEN_CHANGE_AOB, "the screen change function")
-    end
-    if resetResolutionID ~= nil and next(inGameScreens) ~= nil and screenChangeSite == nil then
-      log(ERROR, "Automatic menu resolution reset is off. The screen change could not be bound.")
-    end
-    if screenChangeSite ~= nil then
-      -- EBP already holds the screen the game is moving to, and nothing has been
-      -- written yet, so this still runs in the context of the screen being left.
-      core.detourCode(function(registers)
-        if not inGameScreens[registers.EBP] then
-          resetResolution(state, applyResolution, resetResolutionID)
-        end
-        return registers
-      end, screenChangeSite, SIZE_SCREEN_CHANGE_HOOK)
-    end
-
-    if zoomEnabled and shared then log(INFO, 'Resolution Based Zoom actions registered with Custom Hotkeys') end
   end,
 
   disable = function(self, config) end,
-
 }

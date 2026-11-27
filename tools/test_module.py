@@ -127,6 +127,9 @@ class Game(object):
         globals_ = self.lua.globals()
         globals_.core = self.lua.table_from({
             'AOBScan': self.scan,
+            'AOBScanUnique': self.lua.eval(
+                'function(scan) return function(pattern) local ok, address = pcall(scan, pattern); '
+                'if ok then return address else return nil, "not found" end end end')(self.scan),
             'readInteger': lambda a: self.words.get(a, 0),
             'readByte': lambda a: self.bytes.get(a, 0),
             'writeInteger': lambda a, v: self.words.__setitem__(a, v),

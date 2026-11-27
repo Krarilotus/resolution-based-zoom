@@ -239,10 +239,12 @@ local function legacyKeysActive()
 end
 
 return function(hotkeyConfig, inGameScreens, zoomIn, zoomOut)
-  local screenIDSite = core.AOBScanUnique(SCREEN_ID_AOB)
-  local guardSite = core.AOBScanUnique(IN_GAME_GUARD_AOB)
+  local screenIDSite, screenProblem = core.AOBScanUnique(SCREEN_ID_AOB)
+  local guardSite, guardProblem = core.AOBScanUnique(IN_GAME_GUARD_AOB)
   if not screenIDSite or not guardSite or not next(inGameScreens) then
-    log(ERROR, "Zoom hotkeys are off. The in-game input checks could not be bound.")
+    local problem = screenProblem and ("screen ID " .. screenProblem)
+      or guardProblem and ("in-game input guard " .. guardProblem) or "no in-game screens"
+    log(ERROR, "Zoom hotkeys are off: " .. problem)
     return
   end
   local state = {
@@ -263,28 +265,28 @@ return function(hotkeyConfig, inGameScreens, zoomIn, zoomOut)
   if not singleKeyMode then
     zoomOutKey = resolveHotkey(hotkeyConfig.zoom_out, DEFAULT_ZOOM_OUT_KEY)
     if zoomInKey == zoomOutKey then
-      zoomOutProblem = "Both zoom shortcuts use the same key."
-      zoomOutKey = nil
+      log(WARNING, "Both zoom shortcuts use the same key. Using E and R.")
+      zoomInKey, zoomOutKey = VIRTUAL_KEY_CODES[DEFAULT_ZOOM_IN_KEY], VIRTUAL_KEY_CODES[DEFAULT_ZOOM_OUT_KEY]
     end
   end
 
   -- Ctrl is only needed in single-key mode, and the game does not track it itself.
   local getAsyncKeyState = nil
   if singleKeyMode then
-    local callSite = core.AOBScanUnique(GET_ASYNC_KEY_STATE_AOB)
+    local callSite, reason = core.AOBScanUnique(GET_ASYNC_KEY_STATE_AOB)
     if callSite ~= nil then
       getAsyncKeyState = core.exposeCode(
         wrapStdcallImport(
           core.readInteger(callSite + OFFSET_GET_ASYNC_KEY_STATE_IMPORT)), 1, 0)
     else
       singleKeyMode = false -- without Ctrl the key can only zoom in
-      zoomOutProblem = "The Ctrl key state could not be read."
+      zoomOutProblem = "Ctrl key state binding " .. reason .. "."
     end
   end
 
-  local dispatchSite = core.AOBScanUnique(KEY_DISPATCH_AOB)
+  local dispatchSite, reason = core.AOBScanUnique(KEY_DISPATCH_AOB)
   if dispatchSite == nil then
-    log(ERROR, "Zoom hotkeys are off. The keyboard dispatch could not be bound.")
+    log(ERROR, "Zoom hotkeys are off: keyboard dispatch " .. reason)
     return
   end
 

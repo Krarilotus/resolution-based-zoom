@@ -298,7 +298,7 @@ return {
     if resetResolutionID ~= nil and modules["resource-grid-overlay"] then
       -- Grid Overlay needs the same transition site for its map lifecycle.
       -- Optional automatic reset must not take the site before it can bind.
-      log(ERROR, "Automatic menu resolution reset is off because Resource Grid Overlay uses the same screen transition.")
+      log(WARNING, "Automatic menu resolution reset is off because Resource Grid Overlay uses the same screen transition.")
       resetResolutionID = nil
     end
     local inGameScreens = {}

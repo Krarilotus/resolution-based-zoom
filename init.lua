@@ -317,6 +317,10 @@ end
 
 return {
   enable = function(self, config)
+    if config ~= nil and type(config) ~= "table" then
+      log(ERROR, "Resolution Based Zoom: invalid settings type. Using defaults.")
+      return
+    end
     config = config or {}
     local zoomEnabled = choice(config, "zoom", "enabled", false)
     local reset = choice(config, "reset", "resolution", "off")

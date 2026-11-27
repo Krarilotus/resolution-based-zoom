@@ -1,7 +1,7 @@
 name: resolution-based-zoom
 display-name: Resolution Based Zoom
 type: module
-version: 0.1.3
+version: 0.1.4
 author: gynt, Monsterfish
 meta:
   version: 1.0.0

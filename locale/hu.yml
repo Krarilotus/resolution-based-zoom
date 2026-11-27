@@ -1,8 +1,8 @@
 qol: Kényelmi funkciók
 reset_group: Nagyítás megjelenítése
 reset_off: Jelenlegi felbontás megtartása
-reset_resolution: Menü felbontása
-reset_resolution_tooltip: "A térkép elhagyásakor erre vált."
+reset_resolution: Menüfelbontás térkép elhagyása után
+reset_resolution_tooltip: Válaszd ki a menübe való visszatéréskor használt felbontást.
 tags.interface: Kezelőfelület
 tags.tools: Eszközök
-zoom_enabled: Nagyítás vezérlése
+zoom_enabled: Felbontásalapú nagyítás

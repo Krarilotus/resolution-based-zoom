@@ -1,3 +1,3 @@
 # Resolution Based Zoom
 
-Ajoute des paliers de zoom en modifiant la résolution de l’écran. Activez d’abord Commandes de zoom. Avec Custom Hotkeys, utilisez Ctrl+molette ou modifiez les deux raccourcis. Sans ce module, utilisez E pour agrandir et Ctrl+E pour réduire.
+Activez le zoom basé sur la résolution. En jeu, utilisez E pour zoomer et Ctrl+E pour dézoomer. Avec Custom Hotkeys, consultez les raccourcis Ctrl+molette suggérés dans Options > Raccourcis personnalisés. Vous pouvez aussi choisir la résolution du menu en quittant une carte.

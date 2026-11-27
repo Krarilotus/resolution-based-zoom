@@ -1,3 +1,3 @@
 # Resolution Based Zoom
 
-Ekran çözünürlüğünü değiştirerek yeni yakınlaştırma adımları ekler. Önce Yakınlaştırma kontrolleri ayarını açın. Custom Hotkeys ile Ctrl+fare tekerleğini kullanın veya iki kısayolu da değiştirin. Modül yoksa E ile yakınlaştırın, Ctrl+E ile uzaklaştırın.
+Çözünürlük tabanlı yakınlaştırmayı açın. Oyunda yakınlaştırmak için E, uzaklaştırmak için Ctrl+E kullanın. Custom Hotkeys ile önerilen Ctrl+tekerlek atamalarını Seçenekler > Özel Kısayollar altında kontrol edin. Ayrıca haritadan çıkarken kullanılacak menü çözünürlüğünü seçebilirsiniz.

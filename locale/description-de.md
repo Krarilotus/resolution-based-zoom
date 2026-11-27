@@ -1,3 +1,3 @@
 # Resolution Based Zoom
 
-Erweitert den Zoom um Stufen, die die Bildschirmauflösung ändern. Schalte zuerst Zoom-Steuerung ein. Mit Custom Hotkeys zoomst du per Strg+Mausrad und kannst beide Tastenbelegungen ändern. Ohne das Modul zoomst du mit E hinein und mit Strg+E hinaus.
+Aktiviere den auflösungsbasierten Zoom. Im Spiel zoomst du mit E hinein und mit Strg+E heraus. Mit Custom Hotkeys findest du die vorgeschlagenen Strg+Mausrad-Belegungen unter Optionen > Eigene Tastenkürzel. Außerdem kannst du die Menüauflösung beim Verlassen einer Karte wählen.

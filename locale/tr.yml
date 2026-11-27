@@ -1,8 +1,8 @@
 qol: Kullanım kolaylığı
 reset_group: Yakınlaştırma görüntü ayarları
 reset_off: Mevcut çözünürlüğü koru
-reset_resolution: Menü çözünürlüğü
-reset_resolution_tooltip: "Haritadan çıkınca bu çözünürlüğe dönün."
+reset_resolution: Haritadan çıkınca menü çözünürlüğü
+reset_resolution_tooltip: Menüye döndüğünüzde kullanılacak çözünürlüğü seçin.
 tags.interface: Arayüz
 tags.tools: Araçlar
-zoom_enabled: Yakınlaştırma kontrolleri
+zoom_enabled: Çözünürlük tabanlı yakınlaştırma

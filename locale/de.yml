@@ -1,8 +1,8 @@
 qol: Komfort
 reset_group: Anzeige beim Zoomen
 reset_off: Aktuelle Auflösung behalten
-reset_resolution: Menüauflösung
-reset_resolution_tooltip: "Beim Verlassen der Karte zu dieser Auflösung wechseln."
+reset_resolution: Menüauflösung nach Verlassen einer Karte
+reset_resolution_tooltip: Wähle die Auflösung für die Rückkehr ins Menü.
 tags.interface: Oberfläche
 tags.tools: Werkzeuge
-zoom_enabled: Zoom-Steuerung
+zoom_enabled: Auflösungsbasierter Zoom

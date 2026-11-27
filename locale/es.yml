@@ -1,8 +1,8 @@
 qol: Comodidad de juego
 reset_group: Ajustes de pantalla del zoom
 reset_off: Mantener la resolución actual
-reset_resolution: Resolución de menús
-reset_resolution_tooltip: "Volver a esta resolución al salir del mapa."
+reset_resolution: Resolución del menú al salir de un mapa
+reset_resolution_tooltip: Elige la resolución que se usará al volver al menú.
 tags.interface: Interfaz
 tags.tools: Herramientas
-zoom_enabled: Controles de zoom
+zoom_enabled: Zoom basado en la resolución

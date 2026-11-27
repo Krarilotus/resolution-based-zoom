@@ -1,3 +1,3 @@
 # Resolution Based Zoom
 
-Añade niveles de zoom cambiando la resolución de la pantalla. Activa primero Controles de zoom. Con Custom Hotkeys usa Ctrl+rueda del ratón o cambia ambos atajos. Sin ese módulo, pulsa E para acercar y Ctrl+E para alejar.
+Activa el zoom basado en la resolución. En la partida, usa E para acercar y Ctrl+E para alejar. Con Custom Hotkeys, consulta las asignaciones sugeridas de Ctrl+rueda en Opciones > Teclas personalizadas. También puedes elegir la resolución del menú al salir de un mapa.

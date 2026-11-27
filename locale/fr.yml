@@ -1,8 +1,8 @@
 qol: Qualité de vie
 reset_group: Affichage du zoom
 reset_off: Garder la résolution actuelle
-reset_resolution: Résolution des menus
-reset_resolution_tooltip: "Revenir à cette résolution en quittant la carte."
+reset_resolution: Résolution du menu en quittant une carte
+reset_resolution_tooltip: Choisissez la résolution utilisée au retour dans le menu.
 tags.interface: Interface
 tags.tools: Outils
-zoom_enabled: Commandes de zoom
+zoom_enabled: Zoom basé sur la résolution

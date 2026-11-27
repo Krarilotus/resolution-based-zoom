@@ -1,3 +1,3 @@
 # Resolution Based Zoom
 
-A képernyőfelbontás módosításával új nagyítási fokozatokat ad. Előbb kapcsold be a Nagyítás vezérlése opciót. A Custom Hotkeys modullal a Ctrl+görgő nagyít vagy kicsinyít, és mindkét művelet átköthető. A modul nélkül az E nagyít, a Ctrl+E kicsinyít.
+Kapcsold be a felbontásalapú nagyítást. A játékban az E billentyűvel nagyíthatsz, a Ctrl+E kombinációval kicsinyíthetsz. A Custom Hotkeys használatakor a Beállítások > Egyéni gyorsbillentyűk alatt találod a javasolt Ctrl+görgő hozzárendeléseket. A térkép elhagyásakor használt menüfelbontást is kiválaszthatod.
